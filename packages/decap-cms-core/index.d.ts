@@ -316,7 +316,7 @@ declare module 'decap-cms-core' {
       depth: number;
       subfolders?: boolean;
     };
-    meta?: { path?: { label: string; widget: string; index_file: string } };
+    meta?: { path?: { label: string; widget: string; index_file?: string } };
 
     /**
      * It accepts the following values: yml, yaml, toml, json, md, markdown, html

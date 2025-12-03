@@ -204,15 +204,43 @@ function entryDraftReducer(state = Map(), action) {
   }
 }
 
+function cleanTitleForFilename(title) {
+  if (!title) return 'untitled';
+  // Convert to lowercase, replace spaces and special chars with hyphens
+  return title
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
 export function selectCustomPath(collection, entryDraft) {
   if (!selectHasMetaPath(collection)) {
     return;
   }
   const meta = entryDraft.getIn(['entry', 'meta']);
   const path = meta && meta.get('path');
-  const indexFile = get(collection.toJS(), ['meta', 'path', 'index_file']);
+  
+  if (!path) {
+    return;
+  }
+  
   const extension = selectFolderEntryExtension(collection);
-  const customPath = path && join(collection.get('folder'), path, `${indexFile}.${extension}`);
+  const indexFile = get(collection.toJS(), ['meta', 'path', 'index_file']);
+  
+  // If index_file is specified, use the old behavior for backward compatibility
+  if (indexFile) {
+    const customPath = join(collection.get('folder'), path, `${indexFile}.${extension}`);
+    return customPath;
+  }
+  
+  // New behavior: generate filename from entry title
+  const entryData = entryDraft.getIn(['entry', 'data']);
+  const title = entryData && entryData.get('title');
+  const filename = cleanTitleForFilename(title);
+  const customPath = join(collection.get('folder'), path, `${filename}.${extension}`);
   return customPath;
 }
 

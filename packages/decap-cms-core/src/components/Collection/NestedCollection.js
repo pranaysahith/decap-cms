@@ -68,10 +68,9 @@ const TreeNavLink = styled(NavLink)`
 `;
 
 function getNodeTitle(node) {
-  const title = node.isRoot
-    ? node.title
-    : node.children.find(c => !c.isDir && c.title)?.title || node.title;
-  return title;
+  // For nested collections, use the folder name as the title
+  // instead of requiring an index file
+  return node.title;
 }
 
 function TreeNode(props) {

@@ -283,7 +283,7 @@ function getConfigSchema() {
                     widget: { type: 'string' },
                     index_file: { type: 'string' },
                   },
-                  required: ['label', 'widget', 'index_file'],
+                  required: ['label', 'widget'],
                 },
               },
               additionalProperties: false,
