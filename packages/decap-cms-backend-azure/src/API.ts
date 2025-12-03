@@ -526,21 +526,8 @@ export default class API {
       }),
     );
 
-    // move children
-    for (const item of items.filter(i => i.oldPath && i.action === AzureCommitChangeType.RENAME)) {
-      const sourceDir = dirname(item.oldPath as string);
-      const destDir = dirname(item.path);
-      const children = await this.listFiles(sourceDir, true, branch);
-      children
-        .filter(file => file.path !== item.oldPath)
-        .forEach(file => {
-          items.push({
-            action: AzureCommitChangeType.RENAME,
-            path: file.path.replace(sourceDir, destDir),
-            oldPath: file.path,
-          });
-        });
-    }
+    // Note: We don't move children anymore - only move the specific file being edited
+    // This prevents unintended bulk moves when updating a single entry's path
 
     return items;
   }

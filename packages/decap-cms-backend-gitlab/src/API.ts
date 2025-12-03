@@ -646,21 +646,8 @@ export default class API {
       }),
     );
 
-    // move children
-    for (const item of items.filter(i => i.oldPath && i.action === CommitAction.MOVE)) {
-      const sourceDir = dirname(item.oldPath as string);
-      const destDir = dirname(item.path);
-      const children = await this.listAllFiles(sourceDir, true, branch);
-      children
-        .filter(f => f.path !== item.oldPath)
-        .forEach(file => {
-          items.push({
-            action: CommitAction.MOVE,
-            path: file.path.replace(sourceDir, destDir),
-            oldPath: file.path,
-          });
-        });
-    }
+    // Note: We don't move children anymore - only move the specific file being edited
+    // This prevents unintended bulk moves when updating a single entry's path
 
     return items;
   }

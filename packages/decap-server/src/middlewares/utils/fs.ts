@@ -47,14 +47,9 @@ async function moveFile(from: string, to: string) {
 }
 
 export async function move(from: string, to: string) {
-  // move file
+  // move file only - don't move children
+  // This prevents unintended bulk moves when updating a single entry's path
   await moveFile(from, to);
-
-  // move children
-  const sourceDir = path.dirname(from);
-  const destDir = path.dirname(to);
-  const allFiles = await listFiles(sourceDir, '', 100);
-  await Promise.all(allFiles.map(file => moveFile(file, file.replace(sourceDir, destDir))));
 }
 
 export async function getUpdateDate(repoPath: string, filePath: string) {

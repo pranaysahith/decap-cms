@@ -451,27 +451,15 @@ export default class API {
       }
     });
     for (const { from, to, contentBlob } of toMove) {
-      const sourceDir = dirname(from);
-      const destDir = dirname(to);
-      const filesBranch = parentSha ? this.branch : branch;
-      const files = await this.listAllFiles(sourceDir, 100, filesBranch);
-      for (const file of files) {
-        // to move a file in Bitbucket we need to delete the old path
-        // and upload the file content to the new path
-        // NOTE: this is very wasteful, and also the Bitbucket `diff` API
-        // reports these files as deleted+added instead of renamed
-        // delete current path
-        formData.append('files', file.path);
-        // create in new path
-        const content =
-          file.path === from
-            ? contentBlob
-            : await this.readFile(file.path, null, {
-                branch: filesBranch,
-                parseText: false,
-              });
-        formData.append(file.path.replace(sourceDir, destDir), content, basename(file.path));
-      }
+      // Only move the specific file, not all files in the directory
+      // to move a file in Bitbucket we need to delete the old path
+      // and upload the file content to the new path
+      // NOTE: this is very wasteful, and also the Bitbucket `diff` API
+      // reports these files as deleted+added instead of renamed
+      // delete current path
+      formData.append('files', from);
+      // create in new path
+      formData.append(to, contentBlob, basename(to));
     }
 
     if (commitMessage) {
