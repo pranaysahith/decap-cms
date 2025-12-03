@@ -237,9 +237,22 @@ export function selectCustomPath(collection, entryDraft) {
   }
   
   // New behavior: generate filename from entry title
-  const entryData = entryDraft.getIn(['entry', 'data']);
-  const title = entryData && entryData.get('title');
-  const filename = cleanTitleForFilename(title);
+  const isNewEntry = entryDraft.getIn(['entry', 'newRecord']);
+  const currentPath = entryDraft.getIn(['entry', 'path']);
+  
+  let filename;
+  if (isNewEntry || !currentPath) {
+    // For new entries, generate filename from title
+    const entryData = entryDraft.getIn(['entry', 'data']);
+    const title = entryData && entryData.get('title');
+    filename = cleanTitleForFilename(title);
+  } else {
+    // For existing entries, preserve the current filename
+    const { basename: basenameFunc } = require('path');
+    const currentFilename = basenameFunc(currentPath, `.${extension}`);
+    filename = currentFilename;
+  }
+  
   const customPath = join(collection.get('folder'), path, `${filename}.${extension}`);
   return customPath;
 }
