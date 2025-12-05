@@ -222,24 +222,24 @@ export function selectCustomPath(collection, entryDraft) {
   }
   const meta = entryDraft.getIn(['entry', 'meta']);
   const path = meta && meta.get('path');
-  
+
   if (!path) {
     return;
   }
-  
+
   const extension = selectFolderEntryExtension(collection);
   const indexFile = get(collection.toJS(), ['meta', 'path', 'index_file']);
-  
+
   // If index_file is specified, use the old behavior for backward compatibility
   if (indexFile) {
     const customPath = join(collection.get('folder'), path, `${indexFile}.${extension}`);
     return customPath;
   }
-  
+
   // New behavior: generate filename from entry title
   const isNewEntry = entryDraft.getIn(['entry', 'newRecord']);
   const currentPath = entryDraft.getIn(['entry', 'path']);
-  
+
   let filename;
   if (isNewEntry || !currentPath) {
     // For new entries, generate filename from title
@@ -252,7 +252,7 @@ export function selectCustomPath(collection, entryDraft) {
     const currentFilename = basenameFunc(currentPath, `.${extension}`);
     filename = currentFilename;
   }
-  
+
   const customPath = join(collection.get('folder'), path, `${filename}.${extension}`);
   return customPath;
 }

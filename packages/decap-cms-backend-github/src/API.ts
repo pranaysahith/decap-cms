@@ -1017,7 +1017,7 @@ export default class API {
       // rebase the branch before applying new changes
       const rebasedHead = await this.rebaseBranch(branch);
       const treeFiles = mediaFilesToRemove.concat(files);
-      const changeTree = await this.updateTree(rebasedHead.sha, treeFiles, branch);
+      const changeTree = await this.updateTree(rebasedHead.sha, treeFiles);
       const commit = await this.commit(options.commitMessage, changeTree);
 
       return this.patchBranch(branch, commit.sha, { force: true });
@@ -1423,7 +1423,7 @@ export default class API {
         path: trimStart(to, '/'),
         mode: '100644',
         type: 'blob',
-        sha
+        sha,
       });
     }
 
