@@ -29,7 +29,6 @@ import {
   unsentRequest,
   throwOnConflictingBranches,
 } from 'decap-cms-lib-util';
-import { dirname } from 'path';
 
 import type {
   AssetProxy,
@@ -1392,7 +1391,6 @@ export default class API {
   async updateTree(
     baseSha: string,
     files: { path: string; sha: string | null; newPath?: string }[],
-    branch = this.branch,
   ) {
     const toMove: { from: string; to: string; sha: string }[] = [];
     const tree = files.reduce((acc, file) => {
@@ -1425,7 +1423,7 @@ export default class API {
         path: trimStart(to, '/'),
         mode: '100644',
         type: 'blob',
-        sha: sha,
+        sha
       });
     }
 

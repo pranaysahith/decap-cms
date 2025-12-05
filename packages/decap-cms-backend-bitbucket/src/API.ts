@@ -24,7 +24,6 @@ import {
   readFileMetadata,
   throwOnConflictingBranches,
 } from 'decap-cms-lib-util';
-import { dirname } from 'path';
 import { oneLine } from 'common-tags';
 import { parse } from 'what-the-diff';
 

@@ -32,7 +32,6 @@ import flow from 'lodash/flow';
 import partial from 'lodash/partial';
 import result from 'lodash/result';
 import trimStart from 'lodash/trimStart';
-import { dirname } from 'path';
 
 const NO_CACHE = 'no-cache';
 import * as queries from './queries';

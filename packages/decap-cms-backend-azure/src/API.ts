@@ -22,7 +22,7 @@ import {
   readFileMetadata,
   branchFromContentKey,
 } from 'decap-cms-lib-util';
-import { dirname, basename } from 'path';
+import { basename } from 'path';
 
 import type { ApiRequest, AssetProxy, PersistOptions, DataFile } from 'decap-cms-lib-util';
 import type { Map } from 'immutable';
