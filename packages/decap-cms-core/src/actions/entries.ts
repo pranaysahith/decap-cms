@@ -1188,17 +1188,15 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
     const slugConfig = state.config.slug;
 
     try {
-      // Sanitize the new path
-      const sanitizedNewPath = newPath.split('/').map(getProcessSegment(slugConfig)).join('/');
-
-      // Validate that the new folder name doesn't already exist
-      // We'll let the backend handle conflicts during the move operation
-
       // Get all entries in the collection
       const allEntries = await getAllEntries(state, collection);
 
       // Filter entries that are in the folder being renamed
-      const folderPrefix = `${collection.get('folder')}/${oldPath}/`;
+      // oldPath is relative to collection folder (e.g., "/2024" or "2024")
+      // entry.path is absolute (e.g., "content/posts/2024/article.md")
+      const collectionFolder = collection.get('folder') as string;
+      const normalizedOldPath = oldPath.startsWith('/') ? oldPath.slice(1) : oldPath;
+      const folderPrefix = `${collectionFolder}/${normalizedOldPath}/`;
       const affectedEntries = allEntries.filter((entry: EntryValue) =>
         entry.path.startsWith(folderPrefix),
       );
@@ -1217,9 +1215,13 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
       }
 
       // Prepare move operations for all affected files
+      // newPath is also relative to collection folder, normalize it
+      const normalizedNewPath = newPath.startsWith('/') ? newPath.slice(1) : newPath;
+      const sanitizedNormalizedNewPath = normalizedNewPath.split('/').map(getProcessSegment(slugConfig)).join('/');
+      
       const moves = affectedEntries.map((entry: EntryValue) => {
         const relativePath = entry.path.slice(folderPrefix.length);
-        const newFullPath = `${collection.get('folder')}/${sanitizedNewPath}/${relativePath}`;
+        const newFullPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
         return {
           oldPath: entry.path,
           newPath: newFullPath,
@@ -1238,7 +1240,7 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
           i18nFilePaths.forEach((i18nPath: string) => {
             if (i18nPath.startsWith(folderPrefix)) {
               const relativePath = i18nPath.slice(folderPrefix.length);
-              const newFullPath = `${collection.get('folder')}/${sanitizedNewPath}/${relativePath}`;
+              const newFullPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
               i18nMoves.push({
                 oldPath: i18nPath,
                 newPath: newFullPath,
@@ -1255,7 +1257,7 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
         // Use 'update' type for commit message, or create a custom message
         const commitMessage =
           state.config.backend.commit_messages?.update ||
-          `Rename folder from ${oldPath} to ${sanitizedNewPath}`;
+          `Rename folder from ${normalizedOldPath} to ${sanitizedNormalizedNewPath}`;
 
         await backend.implementation.moveFiles(moves, commitMessage);
 

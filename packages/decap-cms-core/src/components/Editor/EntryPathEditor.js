@@ -90,6 +90,7 @@ class EntryPathEditor extends React.Component {
     collection: ImmutablePropTypes.map.isRequired,
     entry: ImmutablePropTypes.map.isRequired,
     onChange: PropTypes.func.isRequired,
+    onPendingChange: PropTypes.func,
     onValidate: PropTypes.func,
     disabled: PropTypes.bool,
     t: PropTypes.func.isRequired,
@@ -98,6 +99,7 @@ class EntryPathEditor extends React.Component {
   static defaultProps = {
     disabled: false,
     onValidate: null,
+    onPendingChange: null,
   };
 
   constructor(props) {
@@ -124,11 +126,19 @@ class EntryPathEditor extends React.Component {
   handleFilenameChange = e => {
     const filename = e.target.value;
     const { originalFilename } = this.state;
+    const hasChanged = filename !== originalFilename;
+    
     this.setState({ 
       filename, 
-      hasChanged: filename !== originalFilename,
+      hasChanged,
       validationError: null, // Clear any previous validation errors
     });
+
+    // Notify parent about the pending change so hasChanged state is updated
+    // We pass a special flag to indicate this is a pending change, not a committed one
+    if (this.props.onPendingChange) {
+      this.props.onPendingChange(hasChanged);
+    }
   };
 
   validateAndApply = async () => {

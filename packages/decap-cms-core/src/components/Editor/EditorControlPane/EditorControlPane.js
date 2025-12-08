@@ -129,6 +129,11 @@ export default class ControlPane extends React.Component {
     }
   };
 
+  handleEntryPathPendingChange = hasPendingChange => {
+    // Store the pending change state
+    this.hasPendingPathChange = hasPendingChange;
+  };
+
   copyFromOtherLocale =
     ({ targetLocale, t }) =>
     sourceLocale => {
@@ -165,12 +170,15 @@ export default class ControlPane extends React.Component {
     };
 
   validate = async () => {
-    // Validate entry path editor if it exists
-    if (this.entryPathEditorRef && this.entryPathEditorRef.validateAndApply) {
+    // Validate entry path editor if it exists and has pending changes
+    if (this.entryPathEditorRef && this.entryPathEditorRef.validateAndApply && this.hasPendingPathChange) {
       const result = await this.entryPathEditorRef.validateAndApply();
       if (!result.valid) {
-        // Validation failed, don't proceed
-        return;
+        // Validation failed, scroll to the path editor and don't proceed
+        if (this.entryPathEditorRef && this.entryPathEditorRef.scrollIntoView) {
+          this.entryPathEditorRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        throw new Error(result.error || 'Path validation failed');
       }
     }
 
@@ -276,6 +284,7 @@ export default class ControlPane extends React.Component {
             collection={collection}
             entry={entry}
             onChange={this.handleEntryPathChange}
+            onPendingChange={this.handleEntryPathPendingChange}
             t={t}
           />
         )}

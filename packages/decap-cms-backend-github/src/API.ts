@@ -898,10 +898,12 @@ export default class API {
     const uploadPromises = files.map(file => this.uploadBlob(file));
     await Promise.all(uploadPromises);
 
+    const hasSubfolders = options.hasSubfolders !== false; // default to true
+
     if (!options.useWorkflow) {
       return this.getDefaultBranch()
         .then(branchData =>
-          this.updateTree(branchData.commit.sha, files as { sha: string; path: string }[]),
+          this.updateTree(branchData.commit.sha, files as { sha: string; path: string }[], this.branch, hasSubfolders),
         )
         .then(changeTree => this.commit(options.commitMessage, changeTree))
         .then(response => this.patchBranch(this.branch, response.sha));
