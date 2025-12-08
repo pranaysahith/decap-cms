@@ -46,7 +46,9 @@ describe('NestedCollection', () => {
   it('should render correctly with no entries', () => {
     const entries = fromJS([]);
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { asFragment, getByTestId } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
@@ -67,7 +69,9 @@ describe('NestedCollection', () => {
       { path: 'src/pages/b/a/index.md', data: { title: 'File 4' } },
     ]);
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { asFragment, getByTestId } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
@@ -95,7 +99,9 @@ describe('NestedCollection', () => {
       { path: 'src/pages/b/a/index.md', data: { title: 'File 4' } },
     ]);
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, rerender } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
@@ -135,7 +141,9 @@ describe('NestedCollection', () => {
     ]);
 
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, queryByTestId, rerender } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
@@ -168,7 +176,9 @@ describe('NestedCollection', () => {
     ]);
 
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, queryByTestId, rerender } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
@@ -216,7 +226,9 @@ describe('NestedCollection', () => {
     ]);
 
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
@@ -242,7 +254,9 @@ describe('NestedCollection', () => {
     ]);
 
     const dispatch = jest.fn();
-    const t = (key, options) => options?.defaultValue || key;
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, queryByTestId } = render(
       <MemoryRouter>
         <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />

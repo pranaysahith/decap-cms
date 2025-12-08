@@ -15,6 +15,10 @@ describe('FolderRenameControl', () => {
     },
   });
 
+  function t(key, options) {
+    return options?.defaultValue || key;
+  }
+
   const defaultProps = {
     collection,
     folderPath: '/blog',
@@ -23,7 +27,7 @@ describe('FolderRenameControl', () => {
     onRename: jest.fn(),
     onValidate: jest.fn(),
     disabled: false,
-    t: (key, options) => options?.defaultValue || key,
+    t,
   };
 
   beforeEach(() => {
