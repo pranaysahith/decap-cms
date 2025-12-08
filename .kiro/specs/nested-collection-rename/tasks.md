@@ -248,28 +248,41 @@
     - Focus management
     - _Requirements: 1.1, 2.1_
 
-- [ ] 9. Create FolderRenameControl UI component
-  - [ ] 9.1 Create component structure
+- [x] 9. Create FolderRenameControl UI component
+
+
+
+
+
+  - [x] 9.1 Create component structure
+
+
     - Build context menu or inline control
     - Add rename input field
     - Add URL/404 warning with affected entry count
     - Style according to design system
     - _Requirements: 3.1_
 
-  - [ ] 9.2 Implement rename workflow
+  - [x] 9.2 Implement rename workflow
+
+
     - Enter rename mode on trigger
     - Validate new folder name
     - Dispatch renameFolder action
     - Show progress indicator
     - _Requirements: 3.1, 3.2, 3.3_
 
-  - [ ] 9.3 Integrate with NestedCollection tree navigation
+  - [x] 9.3 Integrate with NestedCollection tree navigation
+
+
     - Add rename control to tree nodes
     - Only show for nested collections with subfolders=false
     - Handle folder selection and editing
     - _Requirements: 3.1, 9.1, 9.2_
 
-  - [ ] 9.4 Add accessibility features
+  - [x] 9.4 Add accessibility features
+
+
     - Keyboard navigation support
     - ARIA labels for screen readers
     - Focus management
