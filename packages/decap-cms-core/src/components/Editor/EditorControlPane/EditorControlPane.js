@@ -117,6 +117,13 @@ export default class ControlPane extends React.Component {
     this.props.onLocaleChange(val);
   };
 
+  handleEntryPathChange = (path, filename) => {
+    const { onUpdateEntryPath } = this.props;
+    if (onUpdateEntryPath) {
+      onUpdateEntryPath(path, filename);
+    }
+  };
+
   copyFromOtherLocale =
     ({ targetLocale, t }) =>
     sourceLocale => {
@@ -252,11 +259,7 @@ export default class ControlPane extends React.Component {
           <EntryPathEditor
             collection={collection}
             entry={entry}
-            onChange={(path, filename) => {
-              // For now, just log the change
-              // In a full implementation, this would dispatch an action
-              console.log('Path changed:', path, filename);
-            }}
+            onChange={this.handleEntryPathChange}
             t={t}
           />
         )}
@@ -308,5 +311,6 @@ ControlPane.propTypes = {
   fieldsErrors: ImmutablePropTypes.map.isRequired,
   onChange: PropTypes.func.isRequired,
   onValidate: PropTypes.func.isRequired,
+  onUpdateEntryPath: PropTypes.func,
   locale: PropTypes.string,
 };

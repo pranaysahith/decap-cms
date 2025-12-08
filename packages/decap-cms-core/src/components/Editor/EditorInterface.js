@@ -240,6 +240,7 @@ class EditorInterface extends Component {
       deployPreview,
       draftKey,
       editorBackLink,
+      onUpdateEntryPath,
       t,
     } = this.props;
 
@@ -257,6 +258,7 @@ class EditorInterface extends Component {
       fieldsErrors,
       onChange,
       onValidate,
+      onUpdateEntryPath,
     };
 
     const leftPanelLocale = this.state.leftPanelLocale || locales?.[0];
