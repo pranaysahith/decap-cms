@@ -1501,4 +1501,73 @@ export default class API {
     const pullRequest = await this.getBranchPullRequest(branch);
     return pullRequest.head.sha;
   }
+
+  /**
+   * Move files atomically in a single commit
+   * @param moves Array of file moves with oldPath and newPath
+   * @param commitMessage Commit message for the move operation
+   */
+  async moveFiles(
+    moves: Array<{ oldPath: string; newPath: string }>,
+    commitMessage: string,
+  ): Promise<void> {
+    const branchData = await this.getDefaultBranch();
+
+    // Read content from all old paths
+    const filesWithContent = await Promise.all(
+      moves.map(async ({ oldPath, newPath }) => {
+        const sha = await this.getFileSha(oldPath);
+        return {
+          oldPath: trimStart(oldPath, '/'),
+          newPath: trimStart(newPath, '/'),
+          sha,
+        };
+      }),
+    );
+
+    // Build tree entries: delete old files and create new files
+    const tree: TreeEntry[] = [];
+    for (const { oldPath, newPath, sha } of filesWithContent) {
+      // Delete the old file
+      tree.push({
+        path: oldPath,
+        mode: '100644',
+        type: 'blob',
+        sha: null,
+      });
+      // Create the new file
+      tree.push({
+        path: newPath,
+        mode: '100644',
+        type: 'blob',
+        sha,
+      });
+    }
+
+    // Create tree and commit atomically
+    const changeTree = await this.createTree(branchData.commit.sha, tree);
+    const commit = await this.commit(commitMessage, {
+      ...changeTree,
+      parentSha: branchData.commit.sha,
+    });
+    await this.patchBranch(this.branch, commit.sha);
+  }
+
+  /**
+   * Check if a file exists at the given path
+   * @param path File path to check
+   * @returns true if file exists, false otherwise
+   */
+  async pathExists(path: string): Promise<boolean> {
+    try {
+      await this.getFileSha(path);
+      return true;
+    } catch (error) {
+      if (error instanceof APIError && error.status === 404) {
+        return false;
+      }
+      // Re-throw other errors (network issues, etc.)
+      throw error;
+    }
+  }
 }

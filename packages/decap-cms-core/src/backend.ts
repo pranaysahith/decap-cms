@@ -1136,13 +1136,20 @@ export class Backend {
     } else {
       const slug = entryDraft.getIn(['entry', 'slug']);
       const path = entryDraft.getIn(['entry', 'path']);
+      const hasPathChange = customPath && customPath !== path;
       dataFile = {
         path,
         // for workflow entries we refresh the slug on publish
+        // when path changes, update slug to match new path
         slug: customPath && !useWorkflow ? slugFromCustomPath(collection, customPath) : slug,
         raw: this.entryToRaw(collection, entryDraft.get('entry')),
-        newPath: customPath === path ? undefined : customPath,
+        newPath: hasPathChange ? customPath : undefined,
       };
+
+      // Update asset proxies when entry path changes
+      if (hasPathChange) {
+        updateAssetProxies(assetProxies, config, collection, entryDraft, customPath);
+      }
     }
 
     const { slug, path, newPath } = dataFile;

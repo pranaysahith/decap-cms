@@ -3,7 +3,12 @@ import isEqual from 'lodash/isEqual';
 import { Cursor } from 'decap-cms-lib-util';
 
 import { selectCollectionEntriesCursor } from '../reducers/cursors';
-import { selectFields, updateFieldByKey, selectDefaultSortField } from '../reducers/collections';
+import {
+  selectFields,
+  updateFieldByKey,
+  selectDefaultSortField,
+  selectFolderEntryExtension,
+} from '../reducers/collections';
 import { selectIntegration, selectPublishedSlugs } from '../reducers';
 import { getIntegrationProvider } from '../integrations';
 import { currentBackend } from '../backend';
@@ -18,8 +23,15 @@ import { waitUntil } from './waitUntil';
 import { selectIsFetching, selectEntriesSortFields, selectEntryByPath } from '../reducers/entries';
 import { selectCustomPath } from '../reducers/entryDraft';
 import { navigateToEntry } from '../routing/history';
-import { getProcessSegment } from '../lib/formatters';
-import { hasI18n, duplicateDefaultI18nFields, serializeI18n, I18N, I18N_FIELD } from '../lib/i18n';
+import { getProcessSegment, commitMessageFormatter } from '../lib/formatters';
+import {
+  hasI18n,
+  duplicateDefaultI18nFields,
+  serializeI18n,
+  I18N,
+  I18N_FIELD,
+  getI18nFiles,
+} from '../lib/i18n';
 import { addNotification } from './notifications';
 
 import type { ImplementationMediaFile } from 'decap-cms-lib-util';
@@ -27,6 +39,7 @@ import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type {
   Collection,
+  Collections,
   EntryMap,
   State,
   EntryFields,
@@ -85,6 +98,11 @@ export const ADD_DRAFT_ENTRY_MEDIA_FILE = 'ADD_DRAFT_ENTRY_MEDIA_FILE';
 export const REMOVE_DRAFT_ENTRY_MEDIA_FILE = 'REMOVE_DRAFT_ENTRY_MEDIA_FILE';
 
 export const CHANGE_VIEW_STYLE = 'CHANGE_VIEW_STYLE';
+
+export const UPDATE_ENTRY_PATH = 'UPDATE_ENTRY_PATH';
+export const VALIDATE_ENTRY_PATH_REQUEST = 'VALIDATE_ENTRY_PATH_REQUEST';
+export const VALIDATE_ENTRY_PATH_SUCCESS = 'VALIDATE_ENTRY_PATH_SUCCESS';
+export const VALIDATE_ENTRY_PATH_FAILURE = 'VALIDATE_ENTRY_PATH_FAILURE';
 
 /*
  * Simple Action Creators (Internal)
@@ -1052,4 +1070,235 @@ export function validateMetaField(
     }
   }
   return { error: false };
+}
+
+/*
+ * Path Management Actions
+ */
+
+/**
+ * Update entry path action
+ * Updates the entry draft with new path and filename, triggers validation, and marks entry as changed
+ */
+export function updateEntryPath(path: string, filename: string) {
+  return (dispatch: ThunkDispatch<State, {}, AnyAction>, getState: () => State) => {
+    const state = getState();
+    const collection = state.entryDraft.getIn(['entry', 'collection']);
+
+    dispatch({
+      type: UPDATE_ENTRY_PATH,
+      payload: { path, filename },
+    });
+
+    // Trigger validation for the new path
+    dispatch(validateEntryPath(collection, path, filename));
+  };
+}
+
+/**
+ * Validate entry path action
+ * Checks path uniqueness using backend pathExists, validates path format, sanitizes filename
+ */
+export function validateEntryPath(collectionName: string, path: string, filename: string) {
+  return async (dispatch: ThunkDispatch<State, {}, AnyAction>, getState: () => State) => {
+    const state = getState();
+    const backend = currentBackend(state.config);
+    const collections = state.collections as Collections;
+    const collection = collections.get(collectionName) as Collection;
+
+    dispatch({
+      type: VALIDATE_ENTRY_PATH_REQUEST,
+      payload: { path, filename },
+    });
+
+    try {
+      // Sanitize the filename according to slug configuration
+      const slugConfig = state.config.slug;
+      const sanitizedFilename = filename.split('/').map(getProcessSegment(slugConfig)).join('/');
+
+      // Validate path format
+      const sanitizedPath = path.split('/').map(getProcessSegment(slugConfig)).join('/');
+
+      if (filename !== sanitizedFilename) {
+        dispatch({
+          type: VALIDATE_ENTRY_PATH_FAILURE,
+          payload: {
+            error: 'Invalid characters in filename',
+          },
+        });
+        return;
+      }
+
+      if (path !== sanitizedPath) {
+        dispatch({
+          type: VALIDATE_ENTRY_PATH_FAILURE,
+          payload: {
+            error: 'Invalid characters in path',
+          },
+        });
+        return;
+      }
+
+      // Construct the full path
+      const extension = selectFolderEntryExtension(collection);
+      const fullPath = `${collection.get('folder')}/${path}/${sanitizedFilename}.${extension}`;
+
+      // Check if path exists using backend pathExists
+      if (backend.implementation.pathExists) {
+        const exists = await backend.implementation.pathExists(fullPath);
+
+        // If path exists, check if it's the current entry being edited
+        const currentEntryPath = state.entryDraft.getIn(['entry', 'path']);
+
+        if (exists && fullPath !== currentEntryPath) {
+          dispatch({
+            type: VALIDATE_ENTRY_PATH_FAILURE,
+            payload: {
+              error: 'A file with this name already exists at this path',
+            },
+          });
+          return;
+        }
+      }
+
+      // Validation passed
+      dispatch({
+        type: VALIDATE_ENTRY_PATH_SUCCESS,
+        payload: { path: sanitizedPath, filename: sanitizedFilename },
+      });
+    } catch (error) {
+      dispatch({
+        type: VALIDATE_ENTRY_PATH_FAILURE,
+        payload: {
+          error: error.message || 'Failed to validate path',
+        },
+      });
+    }
+  };
+}
+
+/**
+ * Rename folder action
+ * Gets all entries in folder, updates paths for all entries, and batch persists all changes
+ */
+export function renameFolder(collection: Collection, oldPath: string, newPath: string) {
+  return async (dispatch: ThunkDispatch<State, {}, AnyAction>, getState: () => State) => {
+    const state = getState();
+    const backend = currentBackend(state.config);
+    const slugConfig = state.config.slug;
+
+    try {
+      // Sanitize the new path
+      const sanitizedNewPath = newPath.split('/').map(getProcessSegment(slugConfig)).join('/');
+
+      // Validate that the new folder name doesn't already exist
+      // We'll let the backend handle conflicts during the move operation
+
+      // Get all entries in the collection
+      const allEntries = await getAllEntries(state, collection);
+
+      // Filter entries that are in the folder being renamed
+      const folderPrefix = `${collection.get('folder')}/${oldPath}/`;
+      const affectedEntries = allEntries.filter((entry: EntryValue) =>
+        entry.path.startsWith(folderPrefix),
+      );
+
+      if (affectedEntries.length === 0) {
+        dispatch(
+          addNotification({
+            message: {
+              key: 'ui.toast.noEntriesInFolder',
+            },
+            type: 'warning',
+            dismissAfter: 4000,
+          }),
+        );
+        return;
+      }
+
+      // Prepare move operations for all affected files
+      const moves = affectedEntries.map((entry: EntryValue) => {
+        const relativePath = entry.path.slice(folderPrefix.length);
+        const newFullPath = `${collection.get('folder')}/${sanitizedNewPath}/${relativePath}`;
+        return {
+          oldPath: entry.path,
+          newPath: newFullPath,
+        };
+      });
+
+      // Also handle i18n files if the collection has i18n
+      if (hasI18n(collection)) {
+        const i18nMoves: Array<{ oldPath: string; newPath: string }> = [];
+
+        for (const entry of affectedEntries) {
+          const i18nFiles = getI18nFiles(collection, extension, entry.path, entry.slug, entry.i18n);
+
+          i18nFiles.forEach((i18nFile: { path: string }) => {
+            if (i18nFile.path.startsWith(folderPrefix)) {
+              const relativePath = i18nFile.path.slice(folderPrefix.length);
+              const newFullPath = `${collection.get('folder')}/${sanitizedNewPath}/${relativePath}`;
+              i18nMoves.push({
+                oldPath: i18nFile.path,
+                newPath: newFullPath,
+              });
+            }
+          });
+        }
+
+        moves.push(...i18nMoves);
+      }
+
+      // Use moveFiles if available, otherwise fall back to individual operations
+      if (backend.implementation.moveFiles) {
+        const commitMessage = commitMessageFormatter(
+          'renameFolder',
+          state.config,
+          {
+            collection,
+            oldPath,
+            newPath: sanitizedNewPath,
+          },
+          false,
+        );
+
+        await backend.implementation.moveFiles(moves, commitMessage);
+
+        dispatch(
+          addNotification({
+            message: {
+              key: 'ui.toast.folderRenamed',
+            },
+            type: 'success',
+            dismissAfter: 4000,
+          }),
+        );
+
+        // Reload entries to reflect the changes
+        await dispatch(loadEntries(collection));
+      } else {
+        // Fallback: not implemented for backends without moveFiles support
+        dispatch(
+          addNotification({
+            message: {
+              key: 'ui.toast.folderRenameNotSupported',
+            },
+            type: 'error',
+            dismissAfter: 8000,
+          }),
+        );
+      }
+    } catch (error) {
+      console.error('Failed to rename folder:', error);
+      dispatch(
+        addNotification({
+          message: {
+            details: error,
+            key: 'ui.toast.onFailToRenameFolder',
+          },
+          type: 'error',
+          dismissAfter: 8000,
+        }),
+      );
+    }
+  };
 }

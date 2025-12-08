@@ -19,6 +19,10 @@ import {
   ENTRY_DELETE_SUCCESS,
   ADD_DRAFT_ENTRY_MEDIA_FILE,
   REMOVE_DRAFT_ENTRY_MEDIA_FILE,
+  UPDATE_ENTRY_PATH,
+  VALIDATE_ENTRY_PATH_REQUEST,
+  VALIDATE_ENTRY_PATH_SUCCESS,
+  VALIDATE_ENTRY_PATH_FAILURE,
 } from '../actions/entries';
 import {
   UNPUBLISHED_ENTRY_PERSIST_REQUEST,
@@ -40,6 +44,11 @@ const initialState = Map({
   fieldsErrors: Map(),
   hasChanged: false,
   key: '',
+  originalPath: undefined,
+  pathValidation: Map({
+    isValid: true,
+    error: undefined,
+  }),
 });
 
 function entryDraftReducer(state = Map(), action) {
@@ -47,12 +56,23 @@ function entryDraftReducer(state = Map(), action) {
     case DRAFT_CREATE_FROM_ENTRY:
       // Existing Entry
       return state.withMutations(state => {
-        state.set('entry', fromJS(action.payload.entry));
+        const entry = fromJS(action.payload.entry);
+        state.set('entry', entry);
         state.setIn(['entry', 'newRecord'], false);
         state.set('fieldsMetaData', Map());
         state.set('fieldsErrors', Map());
         state.set('hasChanged', false);
         state.set('key', uuid());
+        // Store original path for detecting path changes
+        state.set('originalPath', entry.get('path'));
+        // Reset path validation state
+        state.set(
+          'pathValidation',
+          Map({
+            isValid: true,
+            error: undefined,
+          }),
+        );
       });
     case DRAFT_CREATE_EMPTY:
       // New Entry
@@ -63,6 +83,16 @@ function entryDraftReducer(state = Map(), action) {
         state.set('fieldsErrors', Map());
         state.set('hasChanged', false);
         state.set('key', uuid());
+        // New entries don't have an original path
+        state.set('originalPath', undefined);
+        // Reset path validation state
+        state.set(
+          'pathValidation',
+          Map({
+            isValid: true,
+            error: undefined,
+          }),
+        );
       });
     case DRAFT_CREATE_FROM_LOCAL_BACKUP:
       // Local Backup
@@ -76,6 +106,16 @@ function entryDraftReducer(state = Map(), action) {
         state.set('fieldsErrors', Map());
         state.set('hasChanged', true);
         state.set('key', uuid());
+        // Store original path if it exists
+        state.set('originalPath', backupEntry.get('path'));
+        // Reset path validation state
+        state.set(
+          'pathValidation',
+          Map({
+            isValid: true,
+            error: undefined,
+          }),
+        );
       });
     case DRAFT_CREATE_DUPLICATE_FROM_ENTRY:
       // Duplicate Entry
@@ -86,6 +126,16 @@ function entryDraftReducer(state = Map(), action) {
         state.set('fieldsMetaData', Map());
         state.set('fieldsErrors', Map());
         state.set('hasChanged', true);
+        // Duplicates are new entries, no original path
+        state.set('originalPath', undefined);
+        // Reset path validation state
+        state.set(
+          'pathValidation',
+          Map({
+            isValid: true,
+            error: undefined,
+          }),
+        );
       });
     case DRAFT_DISCARD:
       return initialState;
@@ -197,6 +247,54 @@ function entryDraftReducer(state = Map(), action) {
         );
         state.set('hasChanged', true);
       });
+    }
+
+    case UPDATE_ENTRY_PATH: {
+      return state.withMutations(state => {
+        const { path, filename } = action.payload;
+
+        // Update the meta path
+        state.setIn(['entry', 'meta', 'path'], path);
+
+        // Store filename for later use (could be used in selectCustomPath)
+        state.setIn(['entry', 'meta', 'filename'], filename);
+
+        // Mark entry as changed
+        state.set('hasChanged', true);
+      });
+    }
+
+    case VALIDATE_ENTRY_PATH_REQUEST: {
+      return state.setIn(
+        ['pathValidation'],
+        Map({
+          isValidating: true,
+          isValid: false,
+          error: undefined,
+        }),
+      );
+    }
+
+    case VALIDATE_ENTRY_PATH_SUCCESS: {
+      return state.setIn(
+        ['pathValidation'],
+        Map({
+          isValidating: false,
+          isValid: true,
+          error: undefined,
+        }),
+      );
+    }
+
+    case VALIDATE_ENTRY_PATH_FAILURE: {
+      return state.setIn(
+        ['pathValidation'],
+        Map({
+          isValidating: false,
+          isValid: false,
+          error: action.payload.error,
+        }),
+      );
     }
 
     default:

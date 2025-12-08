@@ -13,6 +13,7 @@ import {
 } from 'decap-cms-ui-default';
 
 import EditorControl from './EditorControl';
+import EntryPathEditor from '../EntryPathEditor';
 import {
   getI18nInfo,
   getLocaleDataPath,
@@ -179,6 +180,34 @@ export default class ControlPane extends React.Component {
     }
   }
 
+  shouldShowPathEditor = () => {
+    const { collection, entry } = this.props;
+
+    // Only show for nested collections
+    if (!collection.has('nested')) {
+      return false;
+    }
+
+    // Only show when subfolders is false
+    const subfolders = collection.getIn(['nested', 'subfolders'], true);
+    if (subfolders !== false) {
+      return false;
+    }
+
+    // Don't show for new entries (they don't have a path yet)
+    if (!entry.get('path')) {
+      return false;
+    }
+
+    // Don't show when index_file is configured
+    const indexFile = collection.getIn(['meta', 'path', 'index_file']);
+    if (indexFile) {
+      return false;
+    }
+
+    return true;
+  };
+
   render() {
     const { collection, entry, fields, fieldsMetaData, fieldsErrors, onChange, onValidate, t } =
       this.props;
@@ -199,6 +228,8 @@ export default class ControlPane extends React.Component {
       defaultLocale,
     };
 
+    const showPathEditor = this.shouldShowPathEditor();
+
     return (
       <ControlPaneContainer>
         {locales && (
@@ -216,6 +247,18 @@ export default class ControlPane extends React.Component {
               onLocaleChange={this.copyFromOtherLocale({ targetLocale: locale, t })}
             />
           </LocaleRowWrapper>
+        )}
+        {showPathEditor && (
+          <EntryPathEditor
+            collection={collection}
+            entry={entry}
+            onChange={(path, filename) => {
+              // For now, just log the change
+              // In a full implementation, this would dispatch an action
+              console.log('Path changed:', path, filename);
+            }}
+            t={t}
+          />
         )}
         {fields
           .filter(f => f.get('widget') !== 'hidden')

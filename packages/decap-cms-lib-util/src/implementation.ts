@@ -206,6 +206,15 @@ export interface Implementation {
     auth: { status: boolean };
     api: { status: boolean; statusPage: string };
   }>;
+
+  // NEW: Move files atomically
+  moveFiles?: (
+    moves: Array<{ oldPath: string; newPath: string }>,
+    commitMessage: string,
+  ) => Promise<void>;
+
+  // NEW: Check if path exists
+  pathExists?: (path: string) => Promise<boolean>;
 }
 
 const MAX_CONCURRENT_DOWNLOADS = 10;

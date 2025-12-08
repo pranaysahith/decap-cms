@@ -1,5 +1,6 @@
 import flow from 'lodash/flow';
 import get from 'lodash/get';
+import trimStart from 'lodash/trimStart';
 import {
   localForage,
   unsentRequest,
@@ -825,5 +826,61 @@ export default class API {
     const branch = branchFromContentKey(contentKey);
     const pullRequest = await this.getBranchPullRequest(branch);
     return pullRequest.destination.commit.hash;
+  }
+
+  /**
+   * Move files atomically in a single commit
+   * @param moves Array of file moves with oldPath and newPath
+   * @param commitMessage Commit message for the move operation
+   */
+  async moveFiles(
+    moves: Array<{ oldPath: string; newPath: string }>,
+    commitMessage: string,
+  ): Promise<void> {
+    // Bitbucket doesn't have a native move operation, so we need to:
+    // 1. Read content from old paths
+    // 2. Create files at new paths
+    // 3. Delete files at old paths
+    // All in a single commit using the form-based API
+
+    const body = new FormData();
+    body.append('branch', this.branch);
+    body.append('message', commitMessage);
+
+    if (this.commitAuthor) {
+      const { name, email } = this.commitAuthor;
+      body.append('author', `${name} <${email}>`);
+    }
+
+    // Read content from all old paths and prepare for upload
+    for (const { oldPath, newPath } of moves) {
+      const content = await this.readFile(trimStart(oldPath, '/'));
+      // Create file at new path
+      body.append(trimStart(newPath, '/'), new Blob([content]), basename(newPath));
+      // Mark old path for deletion
+      body.append('files', trimStart(oldPath, '/'));
+    }
+
+    await flow([unsentRequest.withMethod('POST'), unsentRequest.withBody(body), this.request])(
+      `${this.repoURL}/src`,
+    );
+  }
+
+  /**
+   * Check if a file exists at the given path
+   * @param path File path to check
+   * @returns true if file exists, false otherwise
+   */
+  async pathExists(path: string): Promise<boolean> {
+    try {
+      await this.readFile(trimStart(path, '/'));
+      return true;
+    } catch (error) {
+      if (error instanceof APIError && error.status === 404) {
+        return false;
+      }
+      // Re-throw other errors (network issues, etc.)
+      throw error;
+    }
   }
 }

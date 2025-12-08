@@ -1026,4 +1026,58 @@ export default class API {
     const mergeRequest = await this.getBranchMergeRequest(branch);
     return mergeRequest.sha;
   }
+
+  /**
+   * Move files atomically in a single commit
+   * @param moves Array of file moves with oldPath and newPath
+   * @param commitMessage Commit message for the move operation
+   */
+  async moveFiles(
+    moves: Array<{ oldPath: string; newPath: string }>,
+    commitMessage: string,
+  ): Promise<void> {
+    // GitLab supports MOVE action in commits API
+    const actions = moves.map(({ oldPath, newPath }) => ({
+      action: CommitAction.MOVE,
+      file_path: trimStart(newPath, '/'),
+      previous_path: trimStart(oldPath, '/'),
+    }));
+
+    const commitParams: CommitsParams = {
+      commit_message: commitMessage,
+      branch: this.branch,
+      actions,
+    };
+
+    if (this.commitAuthor) {
+      const { name, email } = this.commitAuthor;
+      commitParams.author_name = name;
+      commitParams.author_email = email;
+    }
+
+    await this.requestJSON({
+      method: 'POST',
+      url: `${this.repoURL}/repository/commits`,
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify(commitParams),
+    });
+  }
+
+  /**
+   * Check if a file exists at the given path
+   * @param path File path to check
+   * @returns true if file exists, false otherwise
+   */
+  async pathExists(path: string): Promise<boolean> {
+    try {
+      await this.getFileId(trimStart(path, '/'), this.branch);
+      return true;
+    } catch (error) {
+      if (error instanceof APIError && error.status === 404) {
+        return false;
+      }
+      // Re-throw other errors (network issues, etc.)
+      throw error;
+    }
+  }
 }
