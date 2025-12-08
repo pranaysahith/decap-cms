@@ -203,14 +203,16 @@ describe('entryDraft reducer', () => {
 
     beforeEach(() => {
       jest.resetModules();
-      selectHasMetaPath = jest.fn(collection => collection.has('meta') && collection.get('meta').has('path'));
+      selectHasMetaPath = jest.fn(
+        collection => collection.has('meta') && collection.get('meta').has('path'),
+      );
       selectFolderEntryExtension = jest.fn(collection => collection.get('extension') || 'md');
-      
+
       jest.doMock('../collections', () => ({
         selectHasMetaPath,
         selectFolderEntryExtension,
       }));
-      
+
       const entryDraftModule = require('../entryDraft');
       selectCustomPath = entryDraftModule.selectCustomPath;
     });
