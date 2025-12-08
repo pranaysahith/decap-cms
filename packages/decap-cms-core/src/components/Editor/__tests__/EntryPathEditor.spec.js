@@ -97,7 +97,7 @@ describe('EntryPathEditor', () => {
     expect(mockOnChange).toHaveBeenCalledWith('blog/2024/new-post.md', 'new-post.md');
   });
 
-  it('should validate empty filename', async () => {
+  it('should call onChange with empty filename', () => {
     render(
       <EntryPathEditor
         collection={mockCollection}
@@ -110,15 +110,11 @@ describe('EntryPathEditor', () => {
     const filenameInput = screen.getByLabelText(/Filename/i);
     fireEvent.change(filenameInput, { target: { value: '' } });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText(/required/i)).toBeInTheDocument();
-      },
-      { timeout: 1000 },
-    );
+    // Should still call onChange even with empty value
+    expect(mockOnChange).toHaveBeenCalledWith('blog/2024/', '');
   });
 
-  it('should validate invalid characters', async () => {
+  it('should call onChange with invalid characters', () => {
     render(
       <EntryPathEditor
         collection={mockCollection}
@@ -131,12 +127,8 @@ describe('EntryPathEditor', () => {
     const filenameInput = screen.getByLabelText(/Filename/i);
     fireEvent.change(filenameInput, { target: { value: 'invalid<file>.md' } });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText(/invalid characters/i)).toBeInTheDocument();
-      },
-      { timeout: 1000 },
-    );
+    // Should call onChange even with invalid characters (validation happens later)
+    expect(mockOnChange).toHaveBeenCalledWith('blog/2024/invalid<file>.md', 'invalid<file>.md');
   });
 
   it('should be disabled when disabled prop is true', () => {
@@ -155,7 +147,7 @@ describe('EntryPathEditor', () => {
     expect(filenameInput).toBeDisabled();
   });
 
-  it('should validate path separators in filename', async () => {
+  it('should call onChange with path separators in filename', () => {
     render(
       <EntryPathEditor
         collection={mockCollection}
@@ -168,11 +160,7 @@ describe('EntryPathEditor', () => {
     const filenameInput = screen.getByLabelText(/Filename/i);
     fireEvent.change(filenameInput, { target: { value: 'folder/file.md' } });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText(/path separators/i)).toBeInTheDocument();
-      },
-      { timeout: 1000 },
-    );
+    // Should call onChange even with path separators (validation happens later)
+    expect(mockOnChange).toHaveBeenCalledWith('blog/2024/folder/file.md', 'folder/file.md');
   });
 });

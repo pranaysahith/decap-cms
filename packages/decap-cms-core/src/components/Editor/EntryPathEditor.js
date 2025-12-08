@@ -141,22 +141,20 @@ class EntryPathEditor extends React.Component {
 
     // Immediately update the entry path in Redux to mark the entry as changed
     // This allows the Publish button to be enabled
-    if (hasChanged) {
-      const { entry, onChange } = this.props;
-      const entryPath = entry.get('path', '');
-      const pathParts = entryPath.split('/');
-      pathParts.pop(); // Remove the current filename
-      const folderPath = pathParts.join('/');
-      const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-      
-      // Call onChange to update Redux state immediately
-      onChange(newPath, filename);
-    }
+    const { entry, onChange } = this.props;
+    const entryPath = entry.get('path', '');
+    const pathParts = entryPath.split('/');
+    pathParts.pop(); // Remove the current filename
+    const folderPath = pathParts.join('/');
+    const newPath = folderPath ? `${folderPath}/${filename}` : filename;
+    
+    // Call onChange to update Redux state immediately
+    onChange(newPath, filename);
   };
 
   validateAndApply = async () => {
     const { filename, originalFilename } = this.state;
-    const { onValidate, entry, onChange, t } = this.props;
+    const { onValidate, entry, t } = this.props;
 
     // Don't validate if filename hasn't changed
     if (filename === originalFilename) {
@@ -218,17 +216,8 @@ class EntryPathEditor extends React.Component {
 
     this.setState({ validationError: error, isValidating: false });
 
-    // If validation passed, apply the change
+    // If validation passed, update the baseline
     if (!error) {
-      // Get the current folder path from the entry
-      const entryPath = entry.get('path', '');
-      const pathParts = entryPath.split('/');
-      pathParts.pop(); // Remove the current filename
-      const folderPath = pathParts.join('/');
-
-      const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-      onChange(newPath, filename);
-      
       // Update originalFilename so we know the new baseline
       this.setState({ originalFilename: filename, hasChanged: false });
       
