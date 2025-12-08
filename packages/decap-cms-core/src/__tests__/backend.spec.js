@@ -1006,4 +1006,117 @@ describe('Backend', () => {
       ]);
     });
   });
+
+  describe('persistEntry with nested collections', () => {
+    it('should pass hasSubfolders=true when subfolders is true (default)', async () => {
+      const implementation = {
+        init: jest.fn(() => implementation),
+        persistEntry: jest.fn(),
+      };
+
+      const config = {
+        backend: { commit_messages: {} },
+      };
+      const collection = Map({
+        name: 'pages',
+        folder: '_pages',
+        nested: Map({ depth: 10, subfolders: true }),
+        meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
+      });
+      const entryDraft = Map({
+        entry: Map({
+          data: Map({ title: 'Test' }),
+          newRecord: true,
+        }),
+      });
+      const user = { login: 'user', name: 'User' };
+      const backend = new Backend(implementation, { config, backendName: 'test' });
+
+      backend.currentUser = jest.fn().mockResolvedValue(user);
+      backend.entryToRaw = jest.fn().mockReturnValue('content');
+
+      await backend.persistEntry({ config, collection, entryDraft, assetProxies: [] });
+
+      expect(implementation.persistEntry).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          hasSubfolders: true,
+        }),
+      );
+    });
+
+    it('should pass hasSubfolders=false when subfolders is false', async () => {
+      const implementation = {
+        init: jest.fn(() => implementation),
+        persistEntry: jest.fn(),
+      };
+
+      const config = {
+        backend: { commit_messages: {} },
+      };
+      const collection = Map({
+        name: 'pages',
+        folder: '_pages',
+        nested: Map({ depth: 10, subfolders: false }),
+        meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
+      });
+      const entryDraft = Map({
+        entry: Map({
+          data: Map({ title: 'Test' }),
+          newRecord: true,
+        }),
+      });
+      const user = { login: 'user', name: 'User' };
+      const backend = new Backend(implementation, { config, backendName: 'test' });
+
+      backend.currentUser = jest.fn().mockResolvedValue(user);
+      backend.entryToRaw = jest.fn().mockReturnValue('content');
+
+      await backend.persistEntry({ config, collection, entryDraft, assetProxies: [] });
+
+      expect(implementation.persistEntry).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          hasSubfolders: false,
+        }),
+      );
+    });
+
+    it('should default to hasSubfolders=true when subfolders is not specified', async () => {
+      const implementation = {
+        init: jest.fn(() => implementation),
+        persistEntry: jest.fn(),
+      };
+
+      const config = {
+        backend: { commit_messages: {} },
+      };
+      const collection = Map({
+        name: 'pages',
+        folder: '_pages',
+        nested: Map({ depth: 10 }),
+        meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
+      });
+      const entryDraft = Map({
+        entry: Map({
+          data: Map({ title: 'Test' }),
+          newRecord: true,
+        }),
+      });
+      const user = { login: 'user', name: 'User' };
+      const backend = new Backend(implementation, { config, backendName: 'test' });
+
+      backend.currentUser = jest.fn().mockResolvedValue(user);
+      backend.entryToRaw = jest.fn().mockReturnValue('content');
+
+      await backend.persistEntry({ config, collection, entryDraft, assetProxies: [] });
+
+      expect(implementation.persistEntry).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          hasSubfolders: true,
+        }),
+      );
+    });
+  });
 });
