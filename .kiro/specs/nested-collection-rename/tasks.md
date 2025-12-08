@@ -289,6 +289,10 @@
     - _Requirements: 3.1_
 
 - [ ] 10. Checkpoint - Ensure all UI tests pass
+
+
+
+
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 11. Implement editorial workflow support

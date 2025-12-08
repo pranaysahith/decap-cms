@@ -115,21 +115,26 @@ describe('FolderRenameControl', () => {
 
   it('should call onRename when confirm button is clicked', async () => {
     const onRename = jest.fn().mockResolvedValue();
-    const { getByText, getByRole } = render(
+    const { getAllByText, getByRole } = render(
       <FolderRenameControl {...defaultProps} onRename={onRename} />,
     );
 
-    fireEvent.click(getByText('Rename'));
+    // Click the trigger button (first "Rename" button)
+    fireEvent.click(getAllByText('Rename')[0]);
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'new-blog' } });
 
     await waitFor(() => {
-      const confirmButton = getByText('Rename', { selector: 'button' });
+      // Get the confirm button (second "Rename" button inside the modal)
+      const buttons = getAllByText('Rename');
+      const confirmButton = buttons[1];
       expect(confirmButton).not.toBeDisabled();
     });
 
-    const confirmButton = getByText('Rename', { selector: 'button' });
+    // Click the confirm button (second "Rename" button)
+    const buttons = getAllByText('Rename');
+    const confirmButton = buttons[1];
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
@@ -139,17 +144,20 @@ describe('FolderRenameControl', () => {
 
   it('should disable confirm button when validation error exists', async () => {
     const onValidate = jest.fn().mockResolvedValue({ error: 'Invalid name' });
-    const { getByText, getByRole } = render(
+    const { getAllByText, getByRole } = render(
       <FolderRenameControl {...defaultProps} onValidate={onValidate} />,
     );
 
-    fireEvent.click(getByText('Rename'));
+    // Click the trigger button (first "Rename" button)
+    fireEvent.click(getAllByText('Rename')[0]);
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'invalid' } });
 
     await waitFor(() => {
-      const confirmButton = getByText('Rename', { selector: 'button' });
+      // Get the confirm button (second "Rename" button inside the modal)
+      const buttons = getAllByText('Rename');
+      const confirmButton = buttons[1];
       expect(confirmButton).toBeDisabled();
     });
   });
