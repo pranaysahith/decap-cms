@@ -69,6 +69,25 @@ const en = {
         label: 'Updated On',
       },
     },
+    folderRename: {
+      title: 'Rename Folder',
+      newName: 'New Folder Name',
+      cancel: 'Cancel',
+      confirm: 'Rename',
+      renameButton: 'Rename folder',
+      urlWarning:
+        'Renaming this folder will change the URLs for all entries within it. This may result in broken links and 404 errors if the old URLs are referenced elsewhere.',
+      affectedEntries: 'This will affect %{count} entry. |||| This will affect %{count} entries.',
+      validating: 'Validating...',
+      renaming: 'Renaming folder...',
+      errors: {
+        nameRequired: 'Folder name is required',
+        invalidCharacters: 'Folder name contains invalid characters: < > : " | ? * / \\',
+        pathTraversal: 'Folder name cannot contain ".."',
+        validationFailed: 'Validation failed',
+        renameFailed: 'Failed to rename folder',
+      },
+    },
   },
   editor: {
     editorControl: {
