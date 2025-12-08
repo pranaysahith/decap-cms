@@ -16,12 +16,17 @@ const RenameContainer = styled.div`
 const RenameButton = styled.button`
   background: none;
   border: none;
-  padding: 4px 8px;
+  padding: 4px;
   cursor: pointer;
   color: ${colors.text};
-  font-size: 12px;
+  font-size: 16px;
   border-radius: ${lengths.borderRadius};
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 
   &:hover {
     background-color: ${colors.activeBackground};
@@ -439,7 +444,7 @@ class FolderRenameControl extends React.Component {
               defaultValue: 'Rename folder',
             })}
           >
-            Rename
+            ✏️
           </RenameButton>
         </RenameContainer>
 
