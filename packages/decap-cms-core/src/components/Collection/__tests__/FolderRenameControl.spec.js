@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import { fromJS } from 'immutable';
+
 import FolderRenameControl from '../FolderRenameControl';
 
 describe('FolderRenameControl', () => {
@@ -65,9 +66,7 @@ describe('FolderRenameControl', () => {
   });
 
   it('should close modal when escape key is pressed', () => {
-    const { getByText, queryByRole, getByRole } = render(
-      <FolderRenameControl {...defaultProps} />,
-    );
+    const { getByText, queryByRole, getByRole } = render(<FolderRenameControl {...defaultProps} />);
 
     fireEvent.click(getByText('Rename'));
     expect(queryByRole('dialog')).toBeInTheDocument();

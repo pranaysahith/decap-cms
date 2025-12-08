@@ -10,12 +10,12 @@ import { Icon, colors, components } from 'decap-cms-ui-default';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import sortBy from 'lodash/sortBy';
+import { translate } from 'react-polyglot';
 
 import { selectEntries } from '../../reducers/entries';
 import { selectEntryCollectionTitle } from '../../reducers/collections';
 import { renameFolder } from '../../actions/entries';
 import FolderRenameControl from './FolderRenameControl';
-import { translate } from 'react-polyglot';
 
 const { addFileTemplateFields } = stringTemplate;
 
@@ -90,7 +90,7 @@ function TreeNode(props) {
 
   const sortedData = sortBy(treeData, node => getNodeTitle(node, collection));
   const subfolders = collection.get('nested')?.get('subfolders') !== false;
-  
+
   // Check if rename functionality should be enabled
   const isNested = !!collection.get('nested');
   const subfoldersDisabled = collection.get('nested')?.get('subfolders') === false;

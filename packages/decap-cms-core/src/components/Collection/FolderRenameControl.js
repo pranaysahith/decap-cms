@@ -341,7 +341,7 @@ class FolderRenameControl extends React.Component {
       });
     }
     // Check for invalid characters
-    else if (/[<>:"|?*\/\\]/.test(newName)) {
+    else if (/[<>:"|?*/\\]/.test(newName)) {
       error = t('collection.folderRename.errors.invalidCharacters', {
         defaultValue: 'Folder name contains invalid characters: < > : " | ? * / \\',
       });
