@@ -23,14 +23,14 @@ import { waitUntil } from './waitUntil';
 import { selectIsFetching, selectEntriesSortFields, selectEntryByPath } from '../reducers/entries';
 import { selectCustomPath } from '../reducers/entryDraft';
 import { navigateToEntry } from '../routing/history';
-import { getProcessSegment, commitMessageFormatter } from '../lib/formatters';
+import { getProcessSegment } from '../lib/formatters';
 import {
   hasI18n,
   duplicateDefaultI18nFields,
   serializeI18n,
   I18N,
   I18N_FIELD,
-  getI18nFiles,
+  getFilePaths,
 } from '../lib/i18n';
 import { addNotification } from './notifications';
 
@@ -1228,17 +1228,19 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
 
       // Also handle i18n files if the collection has i18n
       if (hasI18n(collection)) {
+        const extension = selectFolderEntryExtension(collection);
         const i18nMoves: Array<{ oldPath: string; newPath: string }> = [];
 
         for (const entry of affectedEntries) {
-          const i18nFiles = getI18nFiles(collection, extension, entry.path, entry.slug, entry.i18n);
+          // Get i18n file paths based on the collection structure
+          const i18nFilePaths = getFilePaths(collection, extension, entry.path, entry.slug);
 
-          i18nFiles.forEach((i18nFile: { path: string }) => {
-            if (i18nFile.path.startsWith(folderPrefix)) {
-              const relativePath = i18nFile.path.slice(folderPrefix.length);
+          i18nFilePaths.forEach((i18nPath: string) => {
+            if (i18nPath.startsWith(folderPrefix)) {
+              const relativePath = i18nPath.slice(folderPrefix.length);
               const newFullPath = `${collection.get('folder')}/${sanitizedNewPath}/${relativePath}`;
               i18nMoves.push({
-                oldPath: i18nFile.path,
+                oldPath: i18nPath,
                 newPath: newFullPath,
               });
             }
@@ -1250,16 +1252,10 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
 
       // Use moveFiles if available, otherwise fall back to individual operations
       if (backend.implementation.moveFiles) {
-        const commitMessage = commitMessageFormatter(
-          'renameFolder',
-          state.config,
-          {
-            collection,
-            oldPath,
-            newPath: sanitizedNewPath,
-          },
-          false,
-        );
+        // Use 'update' type for commit message, or create a custom message
+        const commitMessage =
+          state.config.backend.commit_messages?.update ||
+          `Rename folder from ${oldPath} to ${sanitizedNewPath}`;
 
         await backend.implementation.moveFiles(moves, commitMessage);
 
