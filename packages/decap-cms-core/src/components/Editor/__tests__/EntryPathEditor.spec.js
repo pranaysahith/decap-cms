@@ -29,7 +29,7 @@ describe('EntryPathEditor', () => {
     jest.clearAllMocks();
   });
 
-  it('should render folder path and filename inputs', () => {
+  it('should render filename input', () => {
     render(
       <EntryPathEditor
         collection={mockCollection}
@@ -39,11 +39,10 @@ describe('EntryPathEditor', () => {
       />,
     );
 
-    expect(screen.getByLabelText(/Folder Path/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Filename/i)).toBeInTheDocument();
   });
 
-  it('should initialize with correct path values', () => {
+  it('should initialize with correct filename value', () => {
     render(
       <EntryPathEditor
         collection={mockCollection}
@@ -53,10 +52,8 @@ describe('EntryPathEditor', () => {
       />,
     );
 
-    const folderPathInput = screen.getByLabelText(/Folder Path/i);
     const filenameInput = screen.getByLabelText(/Filename/i);
 
-    expect(folderPathInput).toHaveValue('blog/2024');
     expect(filenameInput).toHaveValue('my-post.md');
   });
 
@@ -153,10 +150,29 @@ describe('EntryPathEditor', () => {
       />,
     );
 
-    const folderPathInput = screen.getByLabelText(/Folder Path/i);
     const filenameInput = screen.getByLabelText(/Filename/i);
 
-    expect(folderPathInput).toBeDisabled();
     expect(filenameInput).toBeDisabled();
+  });
+
+  it('should validate path separators in filename', async () => {
+    render(
+      <EntryPathEditor
+        collection={mockCollection}
+        entry={mockEntry}
+        onChange={mockOnChange}
+        t={mockT}
+      />,
+    );
+
+    const filenameInput = screen.getByLabelText(/Filename/i);
+    fireEvent.change(filenameInput, { target: { value: 'folder/file.md' } });
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/path separators/i)).toBeInTheDocument();
+      },
+      { timeout: 1000 },
+    );
   });
 });

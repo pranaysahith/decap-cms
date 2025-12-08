@@ -107,10 +107,8 @@ class EntryPathEditor extends React.Component {
     const entryPath = entry.get('path', '');
     const pathParts = entryPath.split('/');
     const filename = pathParts.pop() || '';
-    const folderPath = pathParts.join('/');
 
     this.state = {
-      folderPath,
       filename,
       validationError: null,
       hasChanged: false,
@@ -118,21 +116,13 @@ class EntryPathEditor extends React.Component {
     };
 
     // Debounce validation to avoid excessive calls
-    this.debouncedValidate = debounce(this.validatePath, 500);
+    this.debouncedValidate = debounce(this.validateFilename, 500);
   }
 
   componentWillUnmount() {
     // Cancel any pending validation
     this.debouncedValidate.cancel();
   }
-
-  handleFolderPathChange = e => {
-    const folderPath = e.target.value;
-    this.setState({ folderPath, hasChanged: true, isValidating: true }, () => {
-      this.notifyChange();
-      this.debouncedValidate();
-    });
-  };
 
   handleFilenameChange = e => {
     const filename = e.target.value;
@@ -143,16 +133,22 @@ class EntryPathEditor extends React.Component {
   };
 
   notifyChange = () => {
-    const { folderPath, filename } = this.state;
-    const { onChange } = this.props;
+    const { filename } = this.state;
+    const { onChange, entry } = this.props;
+
+    // Get the current folder path from the entry
+    const entryPath = entry.get('path', '');
+    const pathParts = entryPath.split('/');
+    pathParts.pop(); // Remove the current filename
+    const folderPath = pathParts.join('/');
 
     const newPath = folderPath ? `${folderPath}/${filename}` : filename;
     onChange(newPath, filename);
   };
 
-  validatePath = async () => {
-    const { folderPath, filename } = this.state;
-    const { onValidate, t } = this.props;
+  validateFilename = async () => {
+    const { filename } = this.state;
+    const { onValidate, entry, t } = this.props;
 
     // Basic client-side validation
     let error = null;
@@ -170,15 +166,27 @@ class EntryPathEditor extends React.Component {
       });
     }
     // Check for path traversal attempts
-    else if (filename.includes('..') || folderPath.includes('..')) {
+    else if (filename.includes('..')) {
       error = t('editor.entryPathEditor.errors.pathTraversal', {
-        defaultValue: 'Path cannot contain ".."',
+        defaultValue: 'Filename cannot contain ".."',
+      });
+    }
+    // Check for forward slashes (filename should not contain path separators)
+    else if (filename.includes('/') || filename.includes('\\')) {
+      error = t('editor.entryPathEditor.errors.noPathSeparators', {
+        defaultValue: 'Filename cannot contain path separators (/ or \\)',
       });
     }
 
     // If there's a validation function provided, call it
     if (!error && onValidate) {
       try {
+        // Get the current folder path from the entry
+        const entryPath = entry.get('path', '');
+        const pathParts = entryPath.split('/');
+        pathParts.pop(); // Remove the current filename
+        const folderPath = pathParts.join('/');
+
         const newPath = folderPath ? `${folderPath}/${filename}` : filename;
         const validationResult = await onValidate(newPath, filename);
         if (validationResult && validationResult.error) {
@@ -202,7 +210,7 @@ class EntryPathEditor extends React.Component {
 
   render() {
     const { disabled, t } = this.props;
-    const { folderPath, filename, validationError, hasChanged, isValidating } = this.state;
+    const { filename, validationError, hasChanged, isValidating } = this.state;
 
     return (
       <Container>
@@ -212,32 +220,11 @@ class EntryPathEditor extends React.Component {
             <div>
               {t('editor.entryPathEditor.urlWarning', {
                 defaultValue:
-                  'Changing the file or folder name will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere.',
+                  'Changing the filename will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere.',
               })}
             </div>
           </WarningBanner>
         )}
-
-        <InputGroup>
-          <Label htmlFor="entry-folder-path">
-            {t('editor.entryPathEditor.folderPath', { defaultValue: 'Folder Path' })}
-          </Label>
-          <Input
-            id="entry-folder-path"
-            type="text"
-            value={folderPath}
-            onChange={this.handleFolderPathChange}
-            disabled={disabled || isValidating}
-            placeholder={t('editor.entryPathEditor.folderPathPlaceholder', {
-              defaultValue: 'e.g., blog/2024',
-            })}
-          />
-          <HelpText>
-            {t('editor.entryPathEditor.folderPathHelp', {
-              defaultValue: 'The folder path where this entry will be stored',
-            })}
-          </HelpText>
-        </InputGroup>
 
         <InputGroup>
           <Label htmlFor="entry-filename">
