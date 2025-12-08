@@ -101,6 +101,7 @@ export default class ControlPane extends React.Component {
   };
 
   childRefs = {};
+  entryPathEditorRef = null;
 
   controlRef = (field, wrappedControl) => {
     if (!wrappedControl) return;
@@ -110,6 +111,10 @@ export default class ControlPane extends React.Component {
 
   getControlRef = field => wrappedControl => {
     this.controlRef(field, wrappedControl);
+  };
+
+  setEntryPathEditorRef = ref => {
+    this.entryPathEditorRef = ref;
   };
 
   handleLocaleChange = val => {
@@ -160,6 +165,16 @@ export default class ControlPane extends React.Component {
     };
 
   validate = async () => {
+    // Validate entry path editor if it exists
+    if (this.entryPathEditorRef && this.entryPathEditorRef.validateAndApply) {
+      const result = await this.entryPathEditorRef.validateAndApply();
+      if (!result.valid) {
+        // Validation failed, don't proceed
+        return;
+      }
+    }
+
+    // Validate all field controls
     this.props.fields.forEach(field => {
       if (field.get('widget') === 'hidden') return;
       const control = this.childRefs[field.get('name')];
@@ -257,6 +272,7 @@ export default class ControlPane extends React.Component {
         )}
         {showPathEditor && (
           <EntryPathEditor
+            ref={this.setEntryPathEditorRef}
             collection={collection}
             entry={entry}
             onChange={this.handleEntryPathChange}

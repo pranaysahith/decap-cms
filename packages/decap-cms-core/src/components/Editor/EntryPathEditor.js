@@ -110,45 +110,37 @@ class EntryPathEditor extends React.Component {
 
     this.state = {
       filename,
+      originalFilename: filename,
       validationError: null,
       hasChanged: false,
       isValidating: false,
     };
-
-    // Debounce validation to avoid excessive calls
-    this.debouncedValidate = debounce(this.validateFilename, 500);
   }
 
   componentWillUnmount() {
-    // Cancel any pending validation
-    this.debouncedValidate.cancel();
+    // No debounced validation to cancel anymore
   }
 
   handleFilenameChange = e => {
     const filename = e.target.value;
-    this.setState({ filename, hasChanged: true, isValidating: true }, () => {
-      this.notifyChange();
-      this.debouncedValidate();
+    const { originalFilename } = this.state;
+    this.setState({ 
+      filename, 
+      hasChanged: filename !== originalFilename,
+      validationError: null, // Clear any previous validation errors
     });
   };
 
-  notifyChange = () => {
-    const { filename } = this.state;
-    const { onChange, entry } = this.props;
+  validateAndApply = async () => {
+    const { filename, originalFilename } = this.state;
+    const { onValidate, entry, onChange, t } = this.props;
 
-    // Get the current folder path from the entry
-    const entryPath = entry.get('path', '');
-    const pathParts = entryPath.split('/');
-    pathParts.pop(); // Remove the current filename
-    const folderPath = pathParts.join('/');
+    // Don't validate if filename hasn't changed
+    if (filename === originalFilename) {
+      return { valid: true };
+    }
 
-    const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-    onChange(newPath, filename);
-  };
-
-  validateFilename = async () => {
-    const { filename } = this.state;
-    const { onValidate, entry, t } = this.props;
+    this.setState({ isValidating: true });
 
     // Basic client-side validation
     let error = null;
@@ -202,6 +194,25 @@ class EntryPathEditor extends React.Component {
     }
 
     this.setState({ validationError: error, isValidating: false });
+
+    // If validation passed, apply the change
+    if (!error) {
+      // Get the current folder path from the entry
+      const entryPath = entry.get('path', '');
+      const pathParts = entryPath.split('/');
+      pathParts.pop(); // Remove the current filename
+      const folderPath = pathParts.join('/');
+
+      const newPath = folderPath ? `${folderPath}/${filename}` : filename;
+      onChange(newPath, filename);
+      
+      // Update originalFilename so we know the new baseline
+      this.setState({ originalFilename: filename, hasChanged: false });
+      
+      return { valid: true };
+    }
+
+    return { valid: false, error };
   };
 
   hasValidationError = () => {
@@ -220,7 +231,7 @@ class EntryPathEditor extends React.Component {
             <div>
               {t('editor.entryPathEditor.urlWarning', {
                 defaultValue:
-                  'Changing the filename will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere.',
+                  'Changing the filename will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere. The change will be applied when you publish.',
               })}
             </div>
           </WarningBanner>
@@ -242,14 +253,14 @@ class EntryPathEditor extends React.Component {
             })}
           />
           {validationError && <ErrorMessage>{validationError}</ErrorMessage>}
-          {isValidating && !validationError && (
+          {isValidating && (
             <HelpText>
               {t('editor.entryPathEditor.validating', {
                 defaultValue: 'Validating...',
               })}
             </HelpText>
           )}
-          {!isValidating && !validationError && (
+          {!isValidating && !validationError && !hasChanged && (
             <HelpText>
               {t('editor.entryPathEditor.filenameHelp', {
                 defaultValue: 'The filename for this entry (including extension)',
