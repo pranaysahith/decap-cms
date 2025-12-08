@@ -173,9 +173,19 @@ const en = {
       deployButtonLabel: 'View Live',
     },
     entryPathEditor: {
-      fileName: 'File Name',
+      filename: 'Filename',
+      filenameHelp: 'The filename for this entry (including extension)',
+      filenamePlaceholder: 'e.g., my-post.md',
       urlWarning:
-        'Changing the file name will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere.',
+        'Changing the filename will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere. The change will be applied when you publish.',
+      validating: 'Validating...',
+      errors: {
+        filenameRequired: 'Filename is required',
+        invalidCharacters: 'Filename contains invalid characters: < > : " | ? *',
+        pathTraversal: 'Filename cannot contain ".."',
+        noPathSeparators: 'Filename cannot contain path separators (/ or \\)',
+        validationFailed: 'Validation failed',
+      },
     },
     editorWidgets: {
       markdown: {
