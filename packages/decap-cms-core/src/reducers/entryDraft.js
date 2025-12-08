@@ -253,11 +253,19 @@ function entryDraftReducer(state = Map(), action) {
       return state.withMutations(state => {
         const { path, filename } = action.payload;
 
-        // Update the meta path
-        state.setIn(['entry', 'meta', 'path'], path);
+        // Extract folder path from full path (don't include filename in meta.path)
+        const pathParts = path.split('/');
+        pathParts.pop(); // Remove filename
+        const folderPath = pathParts.join('/');
 
-        // Store filename for later use (could be used in selectCustomPath)
+        // Update the meta path with ONLY the folder path
+        state.setIn(['entry', 'meta', 'path'], folderPath);
+
+        // Store filename separately
         state.setIn(['entry', 'meta', 'filename'], filename);
+
+        // Update the entry's actual path
+        state.setIn(['entry', 'path'], path);
 
         // Mark entry as changed
         state.set('hasChanged', true);

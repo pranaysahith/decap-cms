@@ -139,17 +139,7 @@ class EntryPathEditor extends React.Component {
       this.props.onPendingChange(hasChanged);
     }
 
-    // Immediately update the entry path in Redux to mark the entry as changed
-    // Get the folder path from the entry's current path (not from meta.path)
-    const { entry, onChange } = this.props;
-    const entryPath = entry.get('path', '');
-    const pathParts = entryPath.split('/');
-    pathParts.pop(); // Remove the current filename
-    const folderPath = pathParts.join('/');
-    const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-
-    // Call onChange to update Redux state immediately
-    onChange(newPath, filename);
+    // Don't update the entry path while typing - only update when validated
   };
 
   validateAndApply = async () => {
@@ -216,8 +206,19 @@ class EntryPathEditor extends React.Component {
 
     this.setState({ validationError: error, isValidating: false });
 
-    // If validation passed, update the baseline
+    // If validation passed, update the baseline and apply the change
     if (!error) {
+      // Now update the entry path in Redux
+      const { entry, onChange } = this.props;
+      const entryPath = entry.get('path', '');
+      const pathParts = entryPath.split('/');
+      pathParts.pop(); // Remove the current filename
+      const folderPath = pathParts.join('/');
+      const newPath = folderPath ? `${folderPath}/${filename}` : filename;
+
+      // Call onChange to update Redux state
+      onChange(newPath, filename);
+
       // Update originalFilename so we know the new baseline
       this.setState({ originalFilename: filename, hasChanged: false });
       
