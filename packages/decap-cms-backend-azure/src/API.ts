@@ -506,7 +506,7 @@ export default class API {
   async getCommitItems(
     files: { path: string; newPath?: string }[],
     branch: string,
-    subfolders: boolean = true,
+    subfolders = true,
   ) {
     const items = await Promise.all(
       files.map(async file => {
