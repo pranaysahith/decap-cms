@@ -366,6 +366,14 @@ export default class Gitea implements Implementation {
     return this.api!.deleteFiles(paths, commitMessage);
   }
 
+  async moveFiles(moves: Array<{ oldPath: string; newPath: string }>, commitMessage: string) {
+    return this.api!.moveFiles(moves, commitMessage);
+  }
+
+  async pathExists(path: string): Promise<boolean> {
+    return this.api!.pathExists(path);
+  }
+
   async traverseCursor(cursor: Cursor, action: string) {
     const meta = cursor.meta!;
     const files = cursor.data!.get('files')!.toJS() as ApiFile[];

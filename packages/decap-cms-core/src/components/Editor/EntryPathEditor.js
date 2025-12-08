@@ -135,9 +135,22 @@ class EntryPathEditor extends React.Component {
     });
 
     // Notify parent about the pending change so hasChanged state is updated
-    // We pass a special flag to indicate this is a pending change, not a committed one
     if (this.props.onPendingChange) {
       this.props.onPendingChange(hasChanged);
+    }
+
+    // Immediately update the entry path in Redux to mark the entry as changed
+    // This allows the Publish button to be enabled
+    if (hasChanged) {
+      const { entry, onChange } = this.props;
+      const entryPath = entry.get('path', '');
+      const pathParts = entryPath.split('/');
+      pathParts.pop(); // Remove the current filename
+      const folderPath = pathParts.join('/');
+      const newPath = folderPath ? `${folderPath}/${filename}` : filename;
+      
+      // Call onChange to update Redux state immediately
+      onChange(newPath, filename);
     }
   };
 
