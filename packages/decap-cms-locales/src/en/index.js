@@ -172,6 +172,11 @@ const en = {
       deployPreviewButtonLabel: 'View Preview',
       deployButtonLabel: 'View Live',
     },
+    entryPathEditor: {
+      fileName: 'File Name',
+      urlWarning:
+        'Changing the file name will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere.',
+    },
     editorWidgets: {
       markdown: {
         bold: 'Bold',
