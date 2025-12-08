@@ -334,12 +334,20 @@ export function selectCustomPath(collection, entryDraft) {
     return customPath;
   }
 
-  // New behavior: generate filename from entry title
+  // New behavior: generate filename from entry title or use explicitly set filename
   const isNewEntry = entryDraft.getIn(['entry', 'newRecord']);
   const currentPath = entryDraft.getIn(['entry', 'path']);
+  
+  // Check if user has explicitly set a filename via EntryPathEditor
+  const explicitFilename = meta && meta.get('filename');
 
   let filename;
-  if (isNewEntry || !currentPath) {
+  if (explicitFilename) {
+    // Use the explicitly set filename (from EntryPathEditor)
+    // Remove extension if it was included
+    const { basename: basenameFunc } = require('path');
+    filename = basenameFunc(explicitFilename, `.${extension}`);
+  } else if (isNewEntry || !currentPath) {
     // For new entries, generate filename from title
     const entryData = entryDraft.getIn(['entry', 'data']);
     const title = entryData && entryData.get('title');
