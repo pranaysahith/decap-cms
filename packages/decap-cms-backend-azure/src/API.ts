@@ -22,7 +22,7 @@ import {
   readFileMetadata,
   branchFromContentKey,
 } from 'decap-cms-lib-util';
-import { basename } from 'path';
+import { basename, dirname } from 'path';
 
 import type { ApiRequest, AssetProxy, PersistOptions, DataFile } from 'decap-cms-lib-util';
 import type { Map } from 'immutable';
@@ -503,7 +503,11 @@ export default class API {
     }));
   }
 
-  async getCommitItems(files: { path: string; newPath?: string }[], branch: string) {
+  async getCommitItems(
+    files: { path: string; newPath?: string }[],
+    branch: string,
+    subfolders: boolean = true,
+  ) {
     const items = await Promise.all(
       files.map(async file => {
         const [base64Content, fileExists] = await Promise.all([
@@ -526,19 +530,37 @@ export default class API {
       }),
     );
 
-    // Note: We don't move children anymore - only move the specific file being edited
-    // This prevents unintended bulk moves when updating a single entry's path
+    // move children when subfolders is false
+    if (!subfolders) {
+      for (const item of items.filter(
+        i => i.oldPath && i.action === AzureCommitChangeType.RENAME,
+      )) {
+        const sourceDir = dirname(item.oldPath as string);
+        const destDir = dirname(item.path);
+        const children = await this.listFiles(sourceDir, true, branch);
+        children
+          .filter(file => file.path !== item.oldPath)
+          .forEach(file => {
+            items.push({
+              action: AzureCommitChangeType.RENAME,
+              path: file.path.replace(sourceDir, destDir),
+              oldPath: file.path,
+            });
+          });
+      }
+    }
 
     return items;
   }
 
   async persistFiles(dataFiles: DataFile[], mediaFiles: AssetProxy[], options: PersistOptions) {
     const files = [...dataFiles, ...mediaFiles];
+    const subfolders = Boolean((options as any)?.collection?.get('nested')?.get('subfolders'));
     if (options.useWorkflow) {
       const slug = dataFiles[0].slug;
       return this.editorialWorkflowGit(files, slug, options);
     } else {
-      const items = await this.getCommitItems(files, this.branch);
+      const items = await this.getCommitItems(files, this.branch, subfolders);
 
       return this.uploadAndCommit(items, options.commitMessage, this.branch, true);
     }
@@ -664,9 +686,10 @@ export default class API {
     const contentKey = generateContentKey(options.collectionName as string, slug);
     const branch = branchFromContentKey(contentKey);
     const unpublished = options.unpublished || false;
+    const subfolders = Boolean((options as any)?.collection?.get('nested')?.get('subfolders'));
 
     if (!unpublished) {
-      const items = await this.getCommitItems(files, this.branch);
+      const items = await this.getCommitItems(files, this.branch, subfolders);
 
       await this.uploadAndCommit(items, options.commitMessage, branch, true);
       await this.createPullRequest(
@@ -675,7 +698,7 @@ export default class API {
         options.status || this.initialWorkflowStatus,
       );
     } else {
-      const items = await this.getCommitItems(files, branch);
+      const items = await this.getCommitItems(files, branch, subfolders);
       await this.uploadAndCommit(items, options.commitMessage, branch, false);
     }
   }
