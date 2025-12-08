@@ -197,7 +197,27 @@ describe('entryDraft reducer', () => {
   });
 
   describe('selectCustomPath', () => {
-    const { selectCustomPath } = require('../entryDraft');
+    let selectCustomPath;
+    let selectHasMetaPath;
+    let selectFolderEntryExtension;
+
+    beforeEach(() => {
+      jest.resetModules();
+      selectHasMetaPath = jest.fn(collection => collection.has('meta') && collection.get('meta').has('path'));
+      selectFolderEntryExtension = jest.fn(collection => collection.get('extension') || 'md');
+      
+      jest.doMock('../collections', () => ({
+        selectHasMetaPath,
+        selectFolderEntryExtension,
+      }));
+      
+      const entryDraftModule = require('../entryDraft');
+      selectCustomPath = entryDraftModule.selectCustomPath;
+    });
+
+    afterEach(() => {
+      jest.unmock('../collections');
+    });
 
     it('should generate dynamic filename for new entries without index_file', () => {
       const collection = fromJS({

@@ -1020,12 +1020,14 @@ describe('Backend', () => {
       const collection = Map({
         name: 'pages',
         folder: '_pages',
+        fields: List([Map({ name: 'title', widget: 'string' })]),
         nested: Map({ depth: 10, subfolders: true }),
         meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
       });
       const entryDraft = Map({
         entry: Map({
           data: Map({ title: 'Test' }),
+          meta: Map({ path: 'blog' }),
           newRecord: true,
         }),
       });
@@ -1034,8 +1036,15 @@ describe('Backend', () => {
 
       backend.currentUser = jest.fn().mockResolvedValue(user);
       backend.entryToRaw = jest.fn().mockReturnValue('content');
+      backend.generateUniqueSlug = jest.fn().mockResolvedValue('test-slug');
 
-      await backend.persistEntry({ config, collection, entryDraft, assetProxies: [] });
+      await backend.persistEntry({
+        config,
+        collection,
+        entryDraft,
+        assetProxies: [],
+        usedSlugs: List(),
+      });
 
       expect(implementation.persistEntry).toHaveBeenCalledWith(
         expect.anything(),
@@ -1057,12 +1066,14 @@ describe('Backend', () => {
       const collection = Map({
         name: 'pages',
         folder: '_pages',
+        fields: List([Map({ name: 'title', widget: 'string' })]),
         nested: Map({ depth: 10, subfolders: false }),
         meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
       });
       const entryDraft = Map({
         entry: Map({
           data: Map({ title: 'Test' }),
+          meta: Map({ path: 'blog' }),
           newRecord: true,
         }),
       });
@@ -1071,8 +1082,15 @@ describe('Backend', () => {
 
       backend.currentUser = jest.fn().mockResolvedValue(user);
       backend.entryToRaw = jest.fn().mockReturnValue('content');
+      backend.generateUniqueSlug = jest.fn().mockResolvedValue('test-slug');
 
-      await backend.persistEntry({ config, collection, entryDraft, assetProxies: [] });
+      await backend.persistEntry({
+        config,
+        collection,
+        entryDraft,
+        assetProxies: [],
+        usedSlugs: List(),
+      });
 
       expect(implementation.persistEntry).toHaveBeenCalledWith(
         expect.anything(),
@@ -1094,12 +1112,14 @@ describe('Backend', () => {
       const collection = Map({
         name: 'pages',
         folder: '_pages',
+        fields: List([Map({ name: 'title', widget: 'string' })]),
         nested: Map({ depth: 10 }),
         meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
       });
       const entryDraft = Map({
         entry: Map({
           data: Map({ title: 'Test' }),
+          meta: Map({ path: 'blog' }),
           newRecord: true,
         }),
       });
@@ -1108,8 +1128,15 @@ describe('Backend', () => {
 
       backend.currentUser = jest.fn().mockResolvedValue(user);
       backend.entryToRaw = jest.fn().mockReturnValue('content');
+      backend.generateUniqueSlug = jest.fn().mockResolvedValue('test-slug');
 
-      await backend.persistEntry({ config, collection, entryDraft, assetProxies: [] });
+      await backend.persistEntry({
+        config,
+        collection,
+        entryDraft,
+        assetProxies: [],
+        usedSlugs: List(),
+      });
 
       expect(implementation.persistEntry).toHaveBeenCalledWith(
         expect.anything(),
