@@ -1037,6 +1037,8 @@ describe('Backend', () => {
       backend.currentUser = jest.fn().mockResolvedValue(user);
       backend.entryToRaw = jest.fn().mockReturnValue('content');
       backend.generateUniqueSlug = jest.fn().mockResolvedValue('test-slug');
+      backend.invokePreSaveEvent = jest.fn().mockResolvedValue(entryDraft.get('entry'));
+      backend.invokePostSaveEvent = jest.fn().mockResolvedValue();
 
       await backend.persistEntry({
         config,
@@ -1083,6 +1085,8 @@ describe('Backend', () => {
       backend.currentUser = jest.fn().mockResolvedValue(user);
       backend.entryToRaw = jest.fn().mockReturnValue('content');
       backend.generateUniqueSlug = jest.fn().mockResolvedValue('test-slug');
+      backend.invokePreSaveEvent = jest.fn().mockResolvedValue(entryDraft.get('entry'));
+      backend.invokePostSaveEvent = jest.fn().mockResolvedValue();
 
       await backend.persistEntry({
         config,
@@ -1129,6 +1133,8 @@ describe('Backend', () => {
       backend.currentUser = jest.fn().mockResolvedValue(user);
       backend.entryToRaw = jest.fn().mockReturnValue('content');
       backend.generateUniqueSlug = jest.fn().mockResolvedValue('test-slug');
+      backend.invokePreSaveEvent = jest.fn().mockResolvedValue(entryDraft.get('entry'));
+      backend.invokePostSaveEvent = jest.fn().mockResolvedValue();
 
       await backend.persistEntry({
         config,
