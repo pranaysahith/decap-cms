@@ -1019,7 +1019,9 @@ describe('Backend', () => {
       };
       const collection = Map({
         name: 'pages',
+        type: FOLDER,
         folder: '_pages',
+        create: true,
         fields: List([Map({ name: 'title', widget: 'string' })]),
         nested: Map({ depth: 10, subfolders: true }),
         meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
@@ -1067,7 +1069,9 @@ describe('Backend', () => {
       };
       const collection = Map({
         name: 'pages',
+        type: FOLDER,
         folder: '_pages',
+        create: true,
         fields: List([Map({ name: 'title', widget: 'string' })]),
         nested: Map({ depth: 10, subfolders: false }),
         meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
@@ -1115,7 +1119,9 @@ describe('Backend', () => {
       };
       const collection = Map({
         name: 'pages',
+        type: FOLDER,
         folder: '_pages',
+        create: true,
         fields: List([Map({ name: 'title', widget: 'string' })]),
         nested: Map({ depth: 10 }),
         meta: Map({ path: Map({ label: 'Path', widget: 'string' }) }),
