@@ -26,6 +26,7 @@ import {
 } from 'decap-cms-lib-util';
 import { oneLine } from 'common-tags';
 import { parse } from 'what-the-diff';
+import { dirname } from 'path';
 
 import type {
   ApiRequest,
@@ -431,17 +432,18 @@ export default class API {
       commitMessage,
       branch,
       parentSha,
-    }: { commitMessage: string; branch: string; parentSha?: string },
+      hasSubfolders = true,
+    }: { commitMessage: string; branch: string; parentSha?: string; hasSubfolders?: boolean },
   ) {
     const formData = new FormData();
-    const toMove: { from: string; to: string; contentBlob: Blob }[] = [];
+    const toMove: { from: string; to: string; contentBlob: Blob; hasSubfolders: boolean }[] = [];
     files.forEach(file => {
       if (file.delete) {
         // delete the file
         formData.append('files', file.path);
       } else if (file.newPath) {
         const contentBlob = get(file, 'fileObj', new Blob([(file as DataFile).raw]));
-        toMove.push({ from: file.path, to: file.newPath, contentBlob });
+        toMove.push({ from: file.path, to: file.newPath, contentBlob, hasSubfolders });
       } else {
         // add/modify the file
         const contentBlob = get(file, 'fileObj', new Blob([(file as DataFile).raw]));
@@ -449,16 +451,45 @@ export default class API {
         formData.append(file.path, contentBlob, basename(file.path));
       }
     });
-    for (const { from, to, contentBlob } of toMove) {
-      // Only move the specific file, not all files in the directory
-      // to move a file in Bitbucket we need to delete the old path
-      // and upload the file content to the new path
-      // NOTE: this is very wasteful, and also the Bitbucket `diff` API
-      // reports these files as deleted+added instead of renamed
-      // delete current path
-      formData.append('files', from);
-      // create in new path
-      formData.append(to, contentBlob, basename(to));
+    for (const { from, to, contentBlob, hasSubfolders } of toMove) {
+      if (!hasSubfolders) {
+        // New behavior (subfolders: false): Only move the specific file
+        // to move a file in Bitbucket we need to delete the old path
+        // and upload the file content to the new path
+        // NOTE: this is very wasteful, and also the Bitbucket `diff` API
+        // reports these files as deleted+added instead of renamed
+        // delete current path
+        formData.append('files', from);
+        // create in new path
+        formData.append(to, contentBlob, basename(to));
+      } else {
+        // Legacy behavior (subfolders: true, default): Move all files in the directory
+        const sourceDir = dirname(from);
+        const destDir = dirname(to);
+        const filesBranch = parentSha ? this.branch : branch;
+        const files = await this.listAllFiles(sourceDir, 100, filesBranch);
+        for (const file of files) {
+          // to move a file in Bitbucket we need to delete the old path
+          // and upload the file content to the new path
+          // NOTE: this is very wasteful, and also the Bitbucket `diff` API
+          // reports these files as deleted+added instead of renamed
+          // delete current path
+          formData.append('files', file.path);
+          // create in new path
+          const content =
+            file.path === from
+              ? contentBlob
+              : await this.readFile(file.path, null, {
+                  branch: filesBranch,
+                  parseText: false,
+                });
+          formData.append(
+            file.path.replace(sourceDir, destDir),
+            content as Blob,
+            basename(file.path),
+          );
+        }
+      }
     }
 
     if (commitMessage) {
@@ -495,11 +526,16 @@ export default class API {
 
   async persistFiles(dataFiles: DataFile[], mediaFiles: AssetProxy[], options: PersistOptions) {
     const files = [...dataFiles, ...mediaFiles];
+    const hasSubfolders = options.hasSubfolders !== false; // default to true
     if (options.useWorkflow) {
       const slug = dataFiles[0].slug;
       return this.editorialWorkflowGit(files, slug, options);
     } else {
-      return this.uploadFiles(files, { commitMessage: options.commitMessage, branch: this.branch });
+      return this.uploadFiles(files, {
+        commitMessage: options.commitMessage,
+        branch: this.branch,
+        hasSubfolders,
+      });
     }
   }
 
@@ -586,12 +622,14 @@ export default class API {
     const contentKey = generateContentKey(options.collectionName as string, slug);
     const branch = branchFromContentKey(contentKey);
     const unpublished = options.unpublished || false;
+    const hasSubfolders = options.hasSubfolders !== false; // default to true
     if (!unpublished) {
       const defaultBranchSha = await this.branchCommitSha(this.branch);
       await this.uploadFiles(files, {
         commitMessage: options.commitMessage,
         branch,
         parentSha: defaultBranchSha,
+        hasSubfolders,
       });
       await this.createPullRequest(
         branch,
@@ -611,6 +649,7 @@ export default class API {
       await this.uploadFiles([...files, ...toDelete], {
         commitMessage: options.commitMessage,
         branch,
+        hasSubfolders,
       });
     }
   }

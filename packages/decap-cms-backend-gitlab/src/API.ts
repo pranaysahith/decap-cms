@@ -26,6 +26,7 @@ import {
   readFileMetadata,
   throwOnConflictingBranches,
 } from 'decap-cms-lib-util';
+import { dirname } from 'path';
 import { Base64 } from 'js-base64';
 import { Map } from 'immutable';
 import flow from 'lodash/flow';
@@ -618,7 +619,11 @@ export default class API {
     }
   }
 
-  async getCommitItems(files: { path: string; newPath?: string }[], branch: string) {
+  async getCommitItems(
+    files: { path: string; newPath?: string }[],
+    branch: string,
+    hasSubfolders = true,
+  ) {
     const items: CommitItem[] = await Promise.all(
       files.map(async file => {
         const [base64Content, fileExists] = await Promise.all([
@@ -645,19 +650,35 @@ export default class API {
       }),
     );
 
-    // Note: We don't move children anymore - only move the specific file being edited
-    // This prevents unintended bulk moves when updating a single entry's path
+    // Move children if subfolders is true (legacy/default behavior)
+    if (hasSubfolders) {
+      for (const item of items.filter(i => i.oldPath && i.action === CommitAction.MOVE)) {
+        const sourceDir = dirname(item.oldPath as string);
+        const destDir = dirname(item.path);
+        const children = await this.listAllFiles(sourceDir, true, branch);
+        children
+          .filter(f => f.path !== item.oldPath)
+          .forEach(file => {
+            items.push({
+              action: CommitAction.MOVE,
+              path: file.path.replace(sourceDir, destDir),
+              oldPath: file.path,
+            });
+          });
+      }
+    }
 
     return items;
   }
 
   async persistFiles(dataFiles: DataFile[], mediaFiles: AssetProxy[], options: PersistOptions) {
     const files = [...dataFiles, ...mediaFiles];
+    const hasSubfolders = options.hasSubfolders !== false; // default to true
     if (options.useWorkflow) {
       const slug = dataFiles[0].slug;
       return this.editorialWorkflowGit(files, slug, options);
     } else {
-      const items = await this.getCommitItems(files, this.branch);
+      const items = await this.getCommitItems(files, this.branch, hasSubfolders);
       return this.uploadAndCommit(items, {
         commitMessage: options.commitMessage,
       });
@@ -861,8 +882,9 @@ export default class API {
     const contentKey = generateContentKey(options.collectionName as string, slug);
     const branch = branchFromContentKey(contentKey);
     const unpublished = options.unpublished || false;
+    const hasSubfolders = options.hasSubfolders !== false; // default to true
     if (!unpublished) {
-      const items = await this.getCommitItems(files, this.branch);
+      const items = await this.getCommitItems(files, this.branch, hasSubfolders);
       await this.uploadAndCommit(items, {
         commitMessage: options.commitMessage,
         branch,
@@ -877,7 +899,7 @@ export default class API {
       const mergeRequest = await this.getBranchMergeRequest(branch);
       await this.rebaseMergeRequest(mergeRequest);
       const [items, diffs] = await Promise.all([
-        this.getCommitItems(files, branch),
+        this.getCommitItems(files, branch, hasSubfolders),
         this.getDifferences(branch),
       ]);
       // mark files for deletion

@@ -530,8 +530,8 @@ export default class API {
       }),
     );
 
-    // move children when subfolders is false
-    if (!subfolders) {
+    // move children when subfolders is true (legacy/default behavior)
+    if (subfolders) {
       for (const item of items.filter(
         i => i.oldPath && i.action === AzureCommitChangeType.RENAME,
       )) {
@@ -555,7 +555,7 @@ export default class API {
 
   async persistFiles(dataFiles: DataFile[], mediaFiles: AssetProxy[], options: PersistOptions) {
     const files = [...dataFiles, ...mediaFiles];
-    const subfolders = Boolean((options as any)?.collection?.get('nested')?.get('subfolders'));
+    const subfolders = options.hasSubfolders !== false; // default to true
     if (options.useWorkflow) {
       const slug = dataFiles[0].slug;
       return this.editorialWorkflowGit(files, slug, options);
@@ -686,7 +686,7 @@ export default class API {
     const contentKey = generateContentKey(options.collectionName as string, slug);
     const branch = branchFromContentKey(contentKey);
     const unpublished = options.unpublished || false;
-    const subfolders = Boolean((options as any)?.collection?.get('nested')?.get('subfolders'));
+    const subfolders = options.hasSubfolders !== false; // default to true
 
     if (!unpublished) {
       const items = await this.getCommitItems(files, this.branch, subfolders);

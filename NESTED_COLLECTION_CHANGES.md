@@ -67,26 +67,40 @@ meta: { path: { widget: string, label: 'Path' } }
 The changes maintain full backward compatibility. Collections with `index_file` configured will continue to work as before.
 
 ## File Moving Fix
-Fixed a critical bug where updating the path field on an existing entry would move **all files in the source directory** to the destination directory instead of just the specific entry being edited.
+Fixed file moving behavior to be conditional based on the `subfolders` setting in nested collections.
+
+### The Issue
+When updating the path field on an existing entry, the behavior needed to respect the `subfolders` configuration.
 
 ### Root Cause
-Multiple backend implementations (GitHub, GitLab, Azure, Bitbucket, and local server) had logic that would:
-1. Detect a file move operation
-2. List **all files** in the source directory
-3. Move **all of them** to the destination directory
+The "move children" logic was designed for collections with `subfolders: false`, where all files in a folder represent a single logical entry. This logic needed to be conditional.
 
-This was likely intended for some legacy use case but caused unintended bulk moves.
+### The Solution
+Made the file moving behavior conditional based on the `nested.subfolders` configuration:
 
-### Files Fixed
-- `packages/decap-cms-backend-github/src/API.ts` - Simplified `updateTree()` to only move the specific file
-- `packages/decap-cms-backend-gitlab/src/API.ts` - Removed "move children" logic from `getCommitItems()`
-- `packages/decap-cms-backend-azure/src/API.ts` - Removed "move children" logic from `getCommitItems()`
-- `packages/decap-cms-backend-bitbucket/src/API.ts` - Simplified move logic to only move the specific file
-- `packages/decap-server/src/middlewares/utils/fs.ts` - Removed "move children" logic from `move()` function
+**When `subfolders: true` (default - legacy behavior):**
+- All files in the source directory are moved together
+- This maintains backward compatibility for existing collections where all files in a folder represent a single entry
+
+**When `subfolders: false` (new behavior):**
+- Only the specific file being edited is moved
+- Other files in the source directory remain untouched
+- This is the safer behavior for collections where each file is independent
+
+### Files Modified
+- `packages/decap-cms-lib-util/src/implementation.ts` - Added `hasSubfolders` to `PersistOptions` type
+- `packages/decap-cms-core/src/backend.ts` - Pass `hasSubfolders` setting to backend implementations
+- `packages/decap-cms-backend-github/src/API.ts` - Made `updateTree()` conditional on `hasSubfolders`
+- `packages/decap-cms-backend-gitlab/src/API.ts` - Made `getCommitItems()` conditional on `hasSubfolders`
+- `packages/decap-cms-backend-azure/src/API.ts` - Updated to use `hasSubfolders` from options
+- `packages/decap-cms-backend-bitbucket/src/API.ts` - Made `uploadFiles()` conditional on `hasSubfolders`
+- `packages/decap-cms-server/src/middlewares/utils/fs.ts` - Made `move()` conditional on `hasSubfolders`
 - `packages/decap-cms-core/src/reducers/entryDraft.js` - Ensured existing entries preserve their filename when moved
 
-### The Fix Ensures
+### Behavior Summary
 - New entries get filenames generated from their title
 - Existing entries preserve their current filename when moved to a different folder
-- **Only the specific file being edited is moved**, not all files in the source directory
-- All backend implementations now have consistent, safe move behavior
+- File moving respects the `subfolders` configuration:
+  - `subfolders: true` (default): Moves all files in directory (legacy behavior for backward compatibility)
+  - `subfolders: false`: Only moves the specific file (new, safer behavior)
+- All backend implementations now have consistent, configurable move behavior
