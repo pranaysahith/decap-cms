@@ -439,7 +439,7 @@ class FolderRenameControl extends React.Component {
               defaultValue: 'Rename folder',
             })}
           >
-            {t('collection.folderRename.rename', { defaultValue: 'Rename' })}
+            Rename
           </RenameButton>
         </RenameContainer>
 
