@@ -1083,15 +1083,18 @@ export function validateMetaField(
 export function updateEntryPath(path: string, filename: string) {
   return (dispatch: ThunkDispatch<State, {}, AnyAction>, getState: () => State) => {
     const state = getState();
-    const collection = state.entryDraft.getIn(['entry', 'collection']);
+    const collectionName = state.entryDraft.getIn(['entry', 'collection']);
+    const collections = state.collections as Collections;
+    const collection = collections.get(collectionName) as Collection;
+    const collectionFolder = collection.get('folder') as string;
 
     dispatch({
       type: UPDATE_ENTRY_PATH,
-      payload: { path, filename },
+      payload: { path, filename, collectionFolder },
     });
 
     // Trigger validation for the new path
-    dispatch(validateEntryPath(collection, path, filename));
+    dispatch(validateEntryPath(collectionName, path, filename));
   };
 }
 

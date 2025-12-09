@@ -105,14 +105,24 @@ class EntryPathEditor extends React.Component {
   constructor(props) {
     super(props);
 
-    const { entry } = props;
+    const { entry, collection } = props;
     const entryPath = entry.get('path', '');
+    const collectionFolder = collection.get('folder', '');
+    
+    // Extract filename from full path
     const pathParts = entryPath.split('/');
     const filename = pathParts.pop() || '';
+    
+    // Get folder path relative to collection folder
+    const fullFolderPath = pathParts.join('/');
+    const folderPath = collectionFolder && fullFolderPath.startsWith(collectionFolder + '/')
+      ? fullFolderPath.substring(collectionFolder.length + 1)
+      : fullFolderPath;
 
     this.state = {
       filename,
       originalFilename: filename,
+      folderPath, // Store folder path (relative to collection) in state to avoid stale props
       validationError: null,
       hasChanged: false,
       isValidating: false,
@@ -125,7 +135,7 @@ class EntryPathEditor extends React.Component {
 
   handleFilenameChange = e => {
     const filename = e.target.value;
-    const { originalFilename } = this.state;
+    const { originalFilename, folderPath } = this.state;
     const hasChanged = filename !== originalFilename;
 
     this.setState({
@@ -139,7 +149,15 @@ class EntryPathEditor extends React.Component {
       this.props.onPendingChange(hasChanged);
     }
 
-    // Don't update the entry path while typing - only update when validated
+    // Update the entry path immediately so Redux state reflects the change
+    // Construct the full path including collection folder
+    const { onChange, collection } = this.props;
+    const collectionFolder = collection.get('folder', '');
+    const relativePath = folderPath ? `${folderPath}/${filename}` : filename;
+    const fullPath = collectionFolder ? `${collectionFolder}/${relativePath}` : relativePath;
+
+    // Call onChange to update Redux state immediately
+    onChange(fullPath, filename);
   };
 
   validateAndApply = async () => {
@@ -184,14 +202,15 @@ class EntryPathEditor extends React.Component {
     // If there's a validation function provided, call it
     if (!error && onValidate) {
       try {
-        // Get the folder path from the entry's current path (not from meta.path)
-        const entryPath = entry.get('path', '');
-        const pathParts = entryPath.split('/');
-        pathParts.pop(); // Remove the current filename
-        const folderPath = pathParts.join('/');
-        const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-
-        const validationResult = await onValidate(newPath, filename);
+        // Use folder path from state to avoid stale props
+        // Construct the full path including collection folder
+        const { folderPath } = this.state;
+        const { collection } = this.props;
+        const collectionFolder = collection.get('folder', '');
+        const relativePath = folderPath ? `${folderPath}/${filename}` : filename;
+        const fullPath = collectionFolder ? `${collectionFolder}/${relativePath}` : relativePath;
+        
+        const validationResult = await onValidate(fullPath, filename);
         if (validationResult && validationResult.error) {
           error = validationResult.error;
         }
@@ -206,20 +225,10 @@ class EntryPathEditor extends React.Component {
 
     this.setState({ validationError: error, isValidating: false });
 
-    // If validation passed, update the baseline and apply the change
+    // If validation passed, update the baseline
     if (!error) {
-      // Now update the entry path in Redux
-      const { entry, onChange } = this.props;
-      const entryPath = entry.get('path', '');
-      const pathParts = entryPath.split('/');
-      pathParts.pop(); // Remove the current filename
-      const folderPath = pathParts.join('/');
-      const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-
-      // Call onChange to update Redux state
-      onChange(newPath, filename);
-
       // Update originalFilename so we know the new baseline
+      // Note: We don't call onChange here because it's already been called in handleFilenameChange
       this.setState({ originalFilename: filename, hasChanged: false });
 
       return { valid: true };
