@@ -297,8 +297,14 @@
 
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 11. Implement editorial workflow support
-  - [ ] 11.1 Update unpublished entry handling for path changes
+- [-] 11. Implement editorial workflow support
+
+
+
+
+  - [x] 11.1 Update unpublished entry handling for path changes
+
+
     - Store both old and new paths in unpublished entry
     - Display both paths in UI
     - _Requirements: 7.1, 7.4_
@@ -307,7 +313,9 @@
     - **Property 16: Workflow creates unpublished entry**
     - **Validates: Requirements 7.1**
 
-  - [ ] 11.3 Implement publish-time path change
+  - [x] 11.3 Implement publish-time path change
+
+
     - Move file to new location when publishing
     - Validate no conflicts exist
     - _Requirements: 7.2, 7.5_
@@ -319,6 +327,8 @@
   - [ ]* 11.5 Write property test for workflow conflict detection
     - **Property 19: Workflow conflict detection**
     - **Validates: Requirements 7.5**
+
+
 
   - [ ] 11.6 Implement unpublished entry deletion
     - Discard path changes without affecting published entry

@@ -47,6 +47,8 @@ export interface UnpublishedEntry {
   status: string;
   diffs: UnpublishedEntryDiff[];
   updatedAt: string;
+  originalPath?: string; // Original path before rename/move
+  newPath?: string; // New path after rename/move
 }
 
 export interface Map {

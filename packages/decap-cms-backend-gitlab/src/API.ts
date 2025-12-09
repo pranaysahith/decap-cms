@@ -237,6 +237,45 @@ export default class API {
     }
   }
 
+  // Helper methods for path change metadata
+  private encodePathChangeMetadata(originalPath?: string, newPath?: string): string {
+    if (!originalPath && !newPath) {
+      return DEFAULT_PR_BODY;
+    }
+    
+    const metadata = {
+      originalPath,
+      newPath,
+    };
+    
+    // Encode metadata as JSON in a hidden HTML comment
+    const metadataJson = JSON.stringify(metadata);
+    return `${DEFAULT_PR_BODY}\n\n<!-- CMS_PATH_CHANGE: ${metadataJson} -->`;
+  }
+
+  private decodePathChangeMetadata(prBody: string): { originalPath?: string; newPath?: string } {
+    if (!prBody) {
+      return {};
+    }
+    
+    // Extract metadata from HTML comment
+    const match = prBody.match(/<!-- CMS_PATH_CHANGE: (.*?) -->/);
+    if (!match) {
+      return {};
+    }
+    
+    try {
+      const metadata = JSON.parse(match[1]);
+      return {
+        originalPath: metadata.originalPath,
+        newPath: metadata.newPath,
+      };
+    } catch (e) {
+      console.warn('Failed to parse path change metadata:', e);
+      return {};
+    }
+  }
+
   getApolloClient() {
     const authLink = setContext((_, { headers }) => {
       return {
@@ -820,6 +859,10 @@ export default class API {
     const status = labelToStatus(label, this.cmsLabelPrefix);
     const updatedAt = mergeRequest.updated_at;
     const pullRequestAuthor = mergeRequest.author.name;
+    
+    // Extract path change metadata from MR description
+    const pathChangeMetadata = this.decodePathChangeMetadata(mergeRequest.description);
+    
     return {
       collection,
       slug,
@@ -827,6 +870,8 @@ export default class API {
       diffs: diffsWithIds,
       updatedAt,
       pullRequestAuthor,
+      originalPath: pathChangeMetadata.originalPath,
+      newPath: pathChangeMetadata.newPath,
     };
   }
 
@@ -858,7 +903,7 @@ export default class API {
     }
   }
 
-  async createMergeRequest(branch: string, commitMessage: string, status: string) {
+  async createMergeRequest(branch: string, commitMessage: string, status: string, description?: string) {
     await this.requestJSON({
       method: 'POST',
       url: `${this.repoURL}/merge_requests`,
@@ -866,7 +911,7 @@ export default class API {
         source_branch: branch,
         target_branch: this.branch,
         title: commitMessage,
-        description: DEFAULT_PR_BODY,
+        description: description || DEFAULT_PR_BODY,
         labels: statusToLabel(status, this.cmsLabelPrefix),
         remove_source_branch: true,
         squash: this.squashMerges,
@@ -890,10 +935,20 @@ export default class API {
         branch,
         newBranch: true,
       });
+      
+      // Check if any files have path changes
+      const dataFiles = files.filter((f): f is DataFile => 'slug' in f && 'raw' in f);
+      const hasPathChange = dataFiles.some(f => f.newPath);
+      const pathChangeFile = dataFiles.find(f => f.newPath);
+      const mrDescription = hasPathChange && pathChangeFile
+        ? this.encodePathChangeMetadata(pathChangeFile.path, pathChangeFile.newPath)
+        : undefined;
+      
       await this.createMergeRequest(
         branch,
         options.commitMessage,
         options.status || this.initialWorkflowStatus,
+        mrDescription,
       );
     } else {
       const mergeRequest = await this.getBranchMergeRequest(branch);
@@ -955,6 +1010,21 @@ export default class API {
     const contentKey = generateContentKey(collectionName, slug);
     const branch = branchFromContentKey(contentKey);
     const mergeRequest = await this.getBranchMergeRequest(branch);
+    
+    // Check for path changes and validate no conflicts exist
+    const pathChangeMetadata = this.decodePathChangeMetadata(mergeRequest.description);
+    if (pathChangeMetadata.newPath) {
+      // Validate that the new path doesn't conflict with an existing file
+      const exists = await this.pathExists(pathChangeMetadata.newPath);
+      if (exists) {
+        throw new APIError(
+          `Cannot publish: A file already exists at the target location: ${pathChangeMetadata.newPath}`,
+          409,
+          'GitLab',
+        );
+      }
+    }
+    
     await this.mergeMergeRequest(mergeRequest);
   }
 
