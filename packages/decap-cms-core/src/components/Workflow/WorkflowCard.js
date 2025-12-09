@@ -158,7 +158,7 @@ function WorkflowCard({
   t,
 }) {
   const hasPathChange = originalPath && newPath && originalPath !== newPath;
-  
+
   return (
     <WorkflowCardContainer>
       <WorkflowLink to={editLink}>
@@ -168,7 +168,9 @@ function WorkflowCard({
         {(timestamp || authorLastChange) && <CardDate date={timestamp} author={authorLastChange} />}
         {hasPathChange && (
           <PathChangeNotice>
-            <PathChangeLabel>{t('workflow.workflowCard.pathChange', { defaultValue: 'Path Change' })}</PathChangeLabel>
+            <PathChangeLabel>
+              {t('workflow.workflowCard.pathChange', { defaultValue: 'Path Change' })}
+            </PathChangeLabel>
             <PathChangeValue title={originalPath}>From: {originalPath}</PathChangeValue>
             <PathChangeValue title={newPath}>To: {newPath}</PathChangeValue>
           </PathChangeNotice>

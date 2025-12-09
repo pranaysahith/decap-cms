@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
-import debounce from 'lodash/debounce';
+// import debounce from 'lodash/debounce';
 import { colors, lengths, borders, text } from 'decap-cms-ui-default';
 
 const Container = styled.div`
@@ -190,7 +190,7 @@ class EntryPathEditor extends React.Component {
         pathParts.pop(); // Remove the current filename
         const folderPath = pathParts.join('/');
         const newPath = folderPath ? `${folderPath}/${filename}` : filename;
-        
+
         const validationResult = await onValidate(newPath, filename);
         if (validationResult && validationResult.error) {
           error = validationResult.error;
@@ -221,7 +221,7 @@ class EntryPathEditor extends React.Component {
 
       // Update originalFilename so we know the new baseline
       this.setState({ originalFilename: filename, hasChanged: false });
-      
+
       return { valid: true };
     }
 

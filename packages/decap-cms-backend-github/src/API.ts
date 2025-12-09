@@ -235,12 +235,12 @@ export default class API {
     if (!originalPath && !newPath) {
       return DEFAULT_PR_BODY;
     }
-    
+
     const metadata = {
       originalPath,
       newPath,
     };
-    
+
     // Encode metadata as JSON in a hidden HTML comment
     const metadataJson = JSON.stringify(metadata);
     return `${DEFAULT_PR_BODY}\n\n<!-- CMS_PATH_CHANGE: ${metadataJson} -->`;
@@ -250,13 +250,13 @@ export default class API {
     if (!prBody) {
       return {};
     }
-    
+
     // Extract metadata from HTML comment
     const match = prBody.match(/<!-- CMS_PATH_CHANGE: (.*?) -->/);
     if (!match) {
       return {};
     }
-    
+
     try {
       const metadata = JSON.parse(match[1]);
       return {
@@ -645,10 +645,10 @@ export default class API {
     };
     const status = labelToStatus(label.name, this.cmsLabelPrefix);
     const updatedAt = pullRequest.updated_at;
-    
+
     // Extract path change metadata from PR body
     const pathChangeMetadata = this.decodePathChangeMetadata(pullRequest.body);
-    
+
     return {
       collection,
       slug,
@@ -948,7 +948,12 @@ export default class API {
     if (!options.useWorkflow) {
       return this.getDefaultBranch()
         .then(branchData =>
-          this.updateTree(branchData.commit.sha, files as { sha: string; path: string }[], this.branch, hasSubfolders),
+          this.updateTree(
+            branchData.commit.sha,
+            files as { sha: string; path: string }[],
+            this.branch,
+            hasSubfolders,
+          ),
         )
         .then(changeTree => this.commit(options.commitMessage, changeTree))
         .then(response => this.patchBranch(this.branch, response.sha));
@@ -960,14 +965,21 @@ export default class API {
         }),
       );
       const slug = dataFiles[0].slug;
-      
+
       // Check if any data files have path changes
       const pathChangeFile = dataFiles.find(f => f.newPath);
-      const pathChangeMetadata = pathChangeFile && pathChangeFile.newPath
-        ? { originalPath: pathChangeFile.path, newPath: pathChangeFile.newPath }
-        : undefined;
-      
-      return this.editorialWorkflowGit(files as TreeFile[], slug, mediaFilesList, options, pathChangeMetadata);
+      const pathChangeMetadata =
+        pathChangeFile && pathChangeFile.newPath
+          ? { originalPath: pathChangeFile.path, newPath: pathChangeFile.newPath }
+          : undefined;
+
+      return this.editorialWorkflowGit(
+        files as TreeFile[],
+        slug,
+        mediaFilesList,
+        options,
+        pathChangeMetadata,
+      );
     }
   }
 
@@ -1005,7 +1017,12 @@ export default class API {
     await this.patchBranch(this.branch, commit.sha);
   }
 
-  async createBranchAndPullRequest(branchName: string, sha: string, commitMessage: string, body?: string) {
+  async createBranchAndPullRequest(
+    branchName: string,
+    sha: string,
+    commitMessage: string,
+    body?: string,
+  ) {
     await this.createBranch(branchName, sha);
     return this.createPR(commitMessage, branchName, body);
   }
@@ -1054,9 +1071,12 @@ export default class API {
         await this.createBranch(branch, commitResponse.sha);
       } else {
         const prBody = pathChangeMetadata
-          ? this.encodePathChangeMetadata(pathChangeMetadata.originalPath, pathChangeMetadata.newPath)
+          ? this.encodePathChangeMetadata(
+              pathChangeMetadata.originalPath,
+              pathChangeMetadata.newPath,
+            )
           : undefined;
-        
+
         const pr = await this.createBranchAndPullRequest(
           branch,
           commitResponse.sha,
@@ -1236,7 +1256,7 @@ export default class API {
     const branch = branchFromContentKey(contentKey);
 
     const pullRequest = await this.getBranchPullRequest(branch);
-    
+
     // Check for path changes and validate no conflicts exist
     const pathChangeMetadata = this.decodePathChangeMetadata(pullRequest.body);
     if (pathChangeMetadata.newPath) {
@@ -1250,7 +1270,7 @@ export default class API {
         );
       }
     }
-    
+
     await this.mergePR(pullRequest);
     await this.deleteBranch(branch);
   }

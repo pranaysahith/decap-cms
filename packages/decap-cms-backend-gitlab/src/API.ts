@@ -242,12 +242,12 @@ export default class API {
     if (!originalPath && !newPath) {
       return DEFAULT_PR_BODY;
     }
-    
+
     const metadata = {
       originalPath,
       newPath,
     };
-    
+
     // Encode metadata as JSON in a hidden HTML comment
     const metadataJson = JSON.stringify(metadata);
     return `${DEFAULT_PR_BODY}\n\n<!-- CMS_PATH_CHANGE: ${metadataJson} -->`;
@@ -257,13 +257,13 @@ export default class API {
     if (!prBody) {
       return {};
     }
-    
+
     // Extract metadata from HTML comment
     const match = prBody.match(/<!-- CMS_PATH_CHANGE: (.*?) -->/);
     if (!match) {
       return {};
     }
-    
+
     try {
       const metadata = JSON.parse(match[1]);
       return {
@@ -859,10 +859,10 @@ export default class API {
     const status = labelToStatus(label, this.cmsLabelPrefix);
     const updatedAt = mergeRequest.updated_at;
     const pullRequestAuthor = mergeRequest.author.name;
-    
+
     // Extract path change metadata from MR description
     const pathChangeMetadata = this.decodePathChangeMetadata(mergeRequest.description);
-    
+
     return {
       collection,
       slug,
@@ -903,7 +903,12 @@ export default class API {
     }
   }
 
-  async createMergeRequest(branch: string, commitMessage: string, status: string, description?: string) {
+  async createMergeRequest(
+    branch: string,
+    commitMessage: string,
+    status: string,
+    description?: string,
+  ) {
     await this.requestJSON({
       method: 'POST',
       url: `${this.repoURL}/merge_requests`,
@@ -935,15 +940,16 @@ export default class API {
         branch,
         newBranch: true,
       });
-      
+
       // Check if any files have path changes
       const dataFiles = files.filter((f): f is DataFile => 'slug' in f && 'raw' in f);
       const hasPathChange = dataFiles.some(f => f.newPath);
       const pathChangeFile = dataFiles.find(f => f.newPath);
-      const mrDescription = hasPathChange && pathChangeFile
-        ? this.encodePathChangeMetadata(pathChangeFile.path, pathChangeFile.newPath)
-        : undefined;
-      
+      const mrDescription =
+        hasPathChange && pathChangeFile
+          ? this.encodePathChangeMetadata(pathChangeFile.path, pathChangeFile.newPath)
+          : undefined;
+
       await this.createMergeRequest(
         branch,
         options.commitMessage,
@@ -1010,7 +1016,7 @@ export default class API {
     const contentKey = generateContentKey(collectionName, slug);
     const branch = branchFromContentKey(contentKey);
     const mergeRequest = await this.getBranchMergeRequest(branch);
-    
+
     // Check for path changes and validate no conflicts exist
     const pathChangeMetadata = this.decodePathChangeMetadata(mergeRequest.description);
     if (pathChangeMetadata.newPath) {
@@ -1024,7 +1030,7 @@ export default class API {
         );
       }
     }
-    
+
     await this.mergeMergeRequest(mergeRequest);
   }
 

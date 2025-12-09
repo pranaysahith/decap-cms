@@ -1217,8 +1217,11 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
       // Prepare move operations for all affected files
       // newPath is also relative to collection folder, normalize it
       const normalizedNewPath = newPath.startsWith('/') ? newPath.slice(1) : newPath;
-      const sanitizedNormalizedNewPath = normalizedNewPath.split('/').map(getProcessSegment(slugConfig)).join('/');
-      
+      const sanitizedNormalizedNewPath = normalizedNewPath
+        .split('/')
+        .map(getProcessSegment(slugConfig))
+        .join('/');
+
       const moves = affectedEntries.map((entry: EntryValue) => {
         const relativePath = entry.path.slice(folderPrefix.length);
         const newFullPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;

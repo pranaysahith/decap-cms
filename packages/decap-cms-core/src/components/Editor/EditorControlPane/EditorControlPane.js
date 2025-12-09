@@ -171,7 +171,11 @@ export default class ControlPane extends React.Component {
 
   validate = async () => {
     // Validate entry path editor if it exists and has pending changes
-    if (this.entryPathEditorRef && this.entryPathEditorRef.validateAndApply && this.hasPendingPathChange) {
+    if (
+      this.entryPathEditorRef &&
+      this.entryPathEditorRef.validateAndApply &&
+      this.hasPendingPathChange
+    ) {
       const result = await this.entryPathEditorRef.validateAndApply();
       if (!result.valid) {
         // Validation failed, scroll to the path editor and don't proceed
