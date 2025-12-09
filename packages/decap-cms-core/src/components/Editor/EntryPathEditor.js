@@ -116,7 +116,7 @@ class EntryPathEditor extends React.Component {
     // Get folder path relative to collection folder
     const fullFolderPath = pathParts.join('/');
     const folderPath = collectionFolder && fullFolderPath.startsWith(collectionFolder + '/')
-      ? fullFolderPath.substring(collectionFolder.length + 1)
+      ? fullFolderPath.slice(Math.max(0, collectionFolder.length + 1))
       : fullFolderPath;
 
     this.state = {

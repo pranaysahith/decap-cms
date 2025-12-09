@@ -262,7 +262,7 @@ function entryDraftReducer(state = Map(), action) {
         // The path passed in is the full path, so we need to remove the collection folder prefix
         let relativeFolderPath = fullFolderPath;
         if (collectionFolder && fullFolderPath.startsWith(collectionFolder + '/')) {
-          relativeFolderPath = fullFolderPath.substring(collectionFolder.length + 1);
+          relativeFolderPath = fullFolderPath.slice(Math.max(0, collectionFolder.length + 1));
         } else if (collectionFolder && fullFolderPath === collectionFolder) {
           relativeFolderPath = '';
         }
