@@ -286,6 +286,9 @@ const ru = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Вы вышли. Пожалуйста, сохраните все данные и войдите снова',
       onBackendDown: 'Происходят перебои в работе бекенда. См. %{details}',
+      noEntriesInFolder: 'В этой папке не найдено записей',
+      folderRenamed: 'Папка успешно переименована',
+      folderRenameNotSupported: 'Переименование папок не поддерживается этим бэкендом',
     },
   },
   workflow: {

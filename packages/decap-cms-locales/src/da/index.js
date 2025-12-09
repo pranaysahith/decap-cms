@@ -282,6 +282,9 @@ const da = {
       onLoggedOut: 'Du er blevet logget ind, gem venligst evt. ændringer og log på igen',
       onBackendDown:
         'Den bagvedliggende service er ikke tilgængelig i øjeblikket. Se %{details} for mere information',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

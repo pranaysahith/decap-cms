@@ -267,6 +267,9 @@ const zh_Hans = {
       onFailToAuth: '%{details}',
       onLoggedOut: '你已注销，请先保存好数据然后再次登录',
       onBackendDown: 'Backend 服务已中断，欲知详情请查看：%{details}',
+      noEntriesInFolder: '此文件夹中未找到条目',
+      folderRenamed: '文件夹重命名成功',
+      folderRenameNotSupported: '此后端不支持文件夹重命名',
     },
   },
   workflow: {

@@ -225,8 +225,10 @@ const es = {
       entryUpdated: 'Estado de entrada actualizado',
       onDeleteUnpublishedChanges: 'Cambios no publicados eliminados',
       onFailToAuth: '%{details}',
+      noEntriesInFolder: 'No se encontraron entradas en esta carpeta',
+      folderRenamed: 'Carpeta renombrada exitosamente',
+      folderRenameNotSupported: 'El renombrado de carpetas no es compatible con este backend',
     },
-  },
   workflow: {
     workflow: {
       loading: 'Cargando Entradas del Flujo Editorial',

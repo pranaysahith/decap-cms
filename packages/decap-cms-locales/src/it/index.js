@@ -286,6 +286,9 @@ const it = {
         'È stato effettuato il logout, si prega di eseguire il backup dei dati e di effettuare nuovamente il login',
       onBackendDown:
         'Il servizio di backend non è raggiungibile. Consulta %{details} per maggiori informazioni',
+      noEntriesInFolder: 'Nessuna voce trovata in questa cartella',
+      folderRenamed: 'Cartella rinominata con successo',
+      folderRenameNotSupported: 'La rinomina della cartella non è supportata da questo backend',
     },
   },
   workflow: {

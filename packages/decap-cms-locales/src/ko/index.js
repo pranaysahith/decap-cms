@@ -282,6 +282,9 @@ const ko = {
       onLoggedOut: '로그아웃 하셨습니다, 데티어를 백업하시고 다시 로그인 하세요.',
       onBackendDown:
         '백엔드 서비스가 장애를 겪고 있습니다. 자세한 사항은 %{details} 을(를) 참고하세요.',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

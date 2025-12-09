@@ -282,6 +282,9 @@ const de = {
         'Sie wurden ausgeloggt. Bitte sichern Sie Ihre Daten und melden Sie sich erneut an.',
       onBackendDown:
         'Der Server ist aktuell nicht erreichbar. Für weitere Informationen, siehe: %{details}',
+      noEntriesInFolder: 'Keine Einträge in diesem Ordner gefunden',
+      folderRenamed: 'Ordner erfolgreich umbenannt',
+      folderRenameNotSupported: 'Ordner umbenennen wird von diesem Backend nicht unterstützt',
     },
   },
   workflow: {

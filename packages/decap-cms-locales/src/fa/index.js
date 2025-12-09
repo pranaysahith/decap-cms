@@ -267,6 +267,9 @@ const fa = {
       onLoggedOut:
         'شما از سیستم خارج شده اید، لطفاً از داده ها نسخه پشتیبان تهیه کنید و دوباره وارد شوید',
       onBackendDown: 'سرویس باطن در حال تجربه قطعی است. جهت اطلاعات بیشتر جزئیات را ببینید',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

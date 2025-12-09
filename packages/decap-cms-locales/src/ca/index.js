@@ -265,6 +265,9 @@ const ca = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'La teva sessió ha estat tancada. Si us plau, torna a iniciar-la',
       onBackendDown: 'El servidor està patint problemes. Consulta %{details} per a més informació',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

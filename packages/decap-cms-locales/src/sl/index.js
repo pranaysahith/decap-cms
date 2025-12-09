@@ -281,6 +281,9 @@ const sl = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Bili ste odjavljeni, varnostno kopirate vse podatke in se ponovno prijavite',
       onBackendDown: 'Zaledna storitev doživlja izpad. Glejte %{details} za več informacij',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

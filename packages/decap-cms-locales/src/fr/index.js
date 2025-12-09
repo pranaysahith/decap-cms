@@ -275,6 +275,9 @@ const fr = {
       onBackendDown:
         "Le serveur est actuellement hors-service. Pour plus d'informations : %{details}",
     },
+      noEntriesInFolder: 'Aucune entrée trouvée dans ce dossier',
+      folderRenamed: 'Dossier renommé avec succès',
+      folderRenameNotSupported: 'Le renommage de dossier n'est pas pris en charge par ce backend',
   },
   workflow: {
     workflow: {

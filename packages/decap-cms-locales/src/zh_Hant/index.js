@@ -245,6 +245,9 @@ const zh_Hant = {
       onFailToAuth: '%{details}',
       onLoggedOut: '你已經登出，請備份任何資料然後重新登入',
       onBackendDown: '後端服務發生中斷。看 %{details} 取得更多資訊',
+      noEntriesInFolder: '此資料夾中未找到項目',
+      folderRenamed: '資料夾重新命名成功',
+      folderRenameNotSupported: '此後端不支援資料夾重新命名',
     },
   },
   workflow: {

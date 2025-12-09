@@ -282,6 +282,9 @@ const cs = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Byli jste odhlášeni, prosím zálohujte všechna data a znova se přihlašte',
       onBackendDown: 'Backend zaznamenal výpadek. Podívejte se do %{details} pro více informací.',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

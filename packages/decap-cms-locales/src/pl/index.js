@@ -273,6 +273,9 @@ const pl = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Zostałeś wylogowany, utwórz kopię zapasową danych i zaloguj się ponownie.',
       onBackendDown: 'Usługa backendu uległa awarii. Zobacz więcej informacji: %{details}',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

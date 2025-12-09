@@ -264,6 +264,9 @@ const ua = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Ви вийшли. Будь ласка, збережіть усі дані та увійдіть знову',
       onBackendDown: 'Трапилися збої в роботі бекенду. Див. %{details}',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

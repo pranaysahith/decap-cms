@@ -268,6 +268,9 @@ const bg = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Излезли сте. Моля, запазете всички данни и влезте отново',
       onBackendDown: 'Има прекъсване в работата на бекенда. Виж детайлите %{details}',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

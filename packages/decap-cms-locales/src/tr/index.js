@@ -280,6 +280,9 @@ const tr = {
       onLoggedOut: 'Çıkış yaptınız, lütfen tüm verileri yedekleyin ve tekrar giriş yapın',
       onBackendDown:
         'Arka uç hizmetinde bir kesinti yaşanıyor. Daha fazla bilgi için %{details} gör',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {
