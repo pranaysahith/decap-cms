@@ -68,11 +68,11 @@ const TreeNavLink = styled(NavLink)`
 `;
 
 function getNodeTitle(node, collection) {
-  // Backward compatibility: when `meta.path.index_file` is configured,
+  // Backward compatibility: when `nested.subfolders` is true(default) or undefined,
   // directory nodes should use the title of their index entry.
   // Otherwise, use the folder name already stored in `node.title`.
-  const indexFile = collection.getIn(['meta', 'path', 'index_file']);
-  if (!node.isRoot && node.isDir && indexFile) {
+  const subfolders = collection.getIn(['nested', 'subfolders']) !== false;
+  if (!node.isRoot && node.isDir && subfolders) {
     const indexChild = node.children.find(child => !child.isDir);
     if (indexChild && indexChild.title) {
       return indexChild.title;
