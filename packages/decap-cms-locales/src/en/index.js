@@ -317,6 +317,9 @@ const en = {
       onLoggedOut: 'You have been logged out, please back up any data and login again',
       onBackendDown:
         'The backend service is experiencing an outage. See %{details} for more information',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

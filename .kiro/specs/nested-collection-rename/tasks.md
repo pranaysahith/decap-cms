@@ -331,7 +331,7 @@
 
 
 
-  - [ ] 11.6 Implement unpublished entry deletion
+  - [x] 11.6 Implement unpublished entry deletion
     - Discard path changes without affecting published entry
     - Clean up unpublished entry data
     - _Requirements: 7.3_
