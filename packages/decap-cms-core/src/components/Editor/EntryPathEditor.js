@@ -108,16 +108,17 @@ class EntryPathEditor extends React.Component {
     const { entry, collection } = props;
     const entryPath = entry.get('path', '');
     const collectionFolder = collection.get('folder', '');
-    
+
     // Extract filename from full path
     const pathParts = entryPath.split('/');
     const filename = pathParts.pop() || '';
-    
+
     // Get folder path relative to collection folder
     const fullFolderPath = pathParts.join('/');
-    const folderPath = collectionFolder && fullFolderPath.startsWith(collectionFolder + '/')
-      ? fullFolderPath.slice(Math.max(0, collectionFolder.length + 1))
-      : fullFolderPath;
+    const folderPath =
+      collectionFolder && fullFolderPath.startsWith(collectionFolder + '/')
+        ? fullFolderPath.slice(Math.max(0, collectionFolder.length + 1))
+        : fullFolderPath;
 
     this.state = {
       filename,
@@ -133,7 +134,7 @@ class EntryPathEditor extends React.Component {
     // If the meta path changes (user edited the Path field), update our folderPath state
     const prevMetaPath = prevProps.entry.getIn(['meta', 'path'], '');
     const currentMetaPath = this.props.entry.getIn(['meta', 'path'], '');
-    
+
     if (prevMetaPath !== currentMetaPath) {
       this.setState({ folderPath: currentMetaPath });
     }
@@ -172,7 +173,7 @@ class EntryPathEditor extends React.Component {
 
   validateAndApply = async () => {
     const { filename, originalFilename } = this.state;
-    const { onValidate, entry, t } = this.props;
+    const { onValidate, t } = this.props; // removed unused `entry`
 
     // Don't validate if filename hasn't changed
     if (filename === originalFilename) {
@@ -219,7 +220,7 @@ class EntryPathEditor extends React.Component {
         const collectionFolder = collection.get('folder', '');
         const relativePath = folderPath ? `${folderPath}/${filename}` : filename;
         const fullPath = collectionFolder ? `${collectionFolder}/${relativePath}` : relativePath;
-        
+
         const validationResult = await onValidate(fullPath, filename);
         if (validationResult && validationResult.error) {
           error = validationResult.error;
