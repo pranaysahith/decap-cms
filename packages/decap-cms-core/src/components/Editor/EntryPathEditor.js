@@ -129,6 +129,16 @@ class EntryPathEditor extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    // If the meta path changes (user edited the Path field), update our folderPath state
+    const prevMetaPath = prevProps.entry.getIn(['meta', 'path'], '');
+    const currentMetaPath = this.props.entry.getIn(['meta', 'path'], '');
+    
+    if (prevMetaPath !== currentMetaPath) {
+      this.setState({ folderPath: currentMetaPath });
+    }
+  }
+
   componentWillUnmount() {
     // No debounced validation to cancel anymore
   }

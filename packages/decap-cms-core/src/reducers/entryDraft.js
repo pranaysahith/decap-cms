@@ -273,8 +273,9 @@ function entryDraftReducer(state = Map(), action) {
         // Store filename separately
         state.setIn(['entry', 'meta', 'filename'], filename);
 
-        // Update the entry's actual path (full path)
-        state.setIn(['entry', 'path'], path);
+        // DO NOT update entry.path here! Leave it as the original path.
+        // The backend will detect the change by comparing entry.path with selectCustomPath()
+        // and will set newPath in the DataFile object to trigger the rename.
 
         // Mark entry as changed
         state.set('hasChanged', true);
