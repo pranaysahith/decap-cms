@@ -30,8 +30,14 @@ import {
   serializeI18n,
   I18N,
   I18N_FIELD,
+  I18N_STRUCTURE,
   getFilePaths,
+  getI18nInfo,
+  getLocaleFromPath,
+  normalizeFilePath,
+  getFilePath,
 } from '../lib/i18n';
+import type { I18nInfo } from '../lib/i18n';
 import { addNotification } from './notifications';
 
 import type { ImplementationMediaFile } from 'decap-cms-lib-util';
@@ -1237,22 +1243,57 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
       // Also handle i18n files if the collection has i18n
       if (hasI18n(collection)) {
         const extension = selectFolderEntryExtension(collection);
+        const { structure } = getI18nInfo(collection) as I18nInfo;
         const i18nMoves: Array<{ oldPath: string; newPath: string }> = [];
 
         for (const entry of affectedEntries) {
           // Get i18n file paths based on the collection structure
           const i18nFilePaths = getFilePaths(collection, extension, entry.path, entry.slug);
 
-          i18nFilePaths.forEach((i18nPath: string) => {
-            if (i18nPath.startsWith(folderPrefix)) {
-              const relativePath = i18nPath.slice(folderPrefix.length);
-              const newFullPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
-              i18nMoves.push({
-                oldPath: i18nPath,
-                newPath: newFullPath,
-              });
+          for (const i18nPath of i18nFilePaths) {
+            // For MULTIPLE_FOLDERS structure, we need to handle the locale folder structure
+            if (structure === I18N_STRUCTURE.MULTIPLE_FOLDERS) {
+              // Check if this i18n file is within the folder being renamed
+              // For MULTIPLE_FOLDERS, files are like: content/posts/2024/en/article.md
+              // We need to check if the path (without locale) starts with folderPrefix
+              const locale = getLocaleFromPath(structure, extension, i18nPath);
+              if (!locale) continue; // Skip if locale cannot be determined
+              const normalizedPath = normalizeFilePath(structure, i18nPath, locale);
+              
+              if (normalizedPath.startsWith(folderPrefix)) {
+                // Calculate the new path maintaining the locale folder structure
+                const relativePath = normalizedPath.slice(folderPrefix.length);
+                const newNormalizedPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
+                const newI18nPath = getFilePath(structure, extension, newNormalizedPath, entry.slug, locale);
+                
+                i18nMoves.push({
+                  oldPath: i18nPath,
+                  newPath: newI18nPath,
+                });
+              }
+            } else if (structure === I18N_STRUCTURE.MULTIPLE_FILES) {
+              // For MULTIPLE_FILES structure, files are like: content/posts/2024/article.en.md
+              // The locale is in the filename, so we can use the simpler approach
+              if (i18nPath.startsWith(folderPrefix)) {
+                const relativePath = i18nPath.slice(folderPrefix.length);
+                const newFullPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
+                i18nMoves.push({
+                  oldPath: i18nPath,
+                  newPath: newFullPath,
+                });
+              }
+            } else {
+              // For SINGLE_FILE structure, handle normally
+              if (i18nPath.startsWith(folderPrefix)) {
+                const relativePath = i18nPath.slice(folderPrefix.length);
+                const newFullPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
+                i18nMoves.push({
+                  oldPath: i18nPath,
+                  newPath: newFullPath,
+                });
+              }
             }
-          });
+          }
         }
 
         moves.push(...i18nMoves);

@@ -297,7 +297,7 @@
 
   - Ensure all tests pass, ask the user if questions arise.
 
-- [-] 11. Implement editorial workflow support
+- [x] 11. Implement editorial workflow support
 
 
 
@@ -340,7 +340,7 @@
     - **Property 18: Workflow delete preserves original**
     - **Validates: Requirements 7.3**
 
-- [ ] 12. Implement i18n-specific handling
+- [-] 12. Implement i18n-specific handling
   - [ ] 12.1 Update i18n folder rename logic
     - Handle MULTIPLE_FOLDERS structure
     - Handle MULTIPLE_FILES structure

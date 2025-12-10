@@ -239,6 +239,12 @@ export default class ControlPane extends React.Component {
       return false;
     }
 
+    // Only show if meta.filename is configured
+    const hasMetaFilename = collection.has('meta') && collection.get('meta')?.has('filename');
+    if (!hasMetaFilename) {
+      return false;
+    }
+
     return true;
   };
 
