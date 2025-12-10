@@ -176,16 +176,28 @@ class EditorInterface extends Component {
 
   handleOnPersist = async (opts = {}) => {
     const { createNew = false, duplicate = false } = opts;
-    await this.controlPaneRef.switchToDefaultLocale();
-    this.controlPaneRef.validate();
-    this.props.onPersist({ createNew, duplicate });
+    try {
+      await this.controlPaneRef.switchToDefaultLocale();
+      await this.controlPaneRef.validate();
+      this.props.onPersist({ createNew, duplicate });
+    } catch (error) {
+      // Validation failed, show error to user
+      console.error('Validation failed:', error);
+      // The error will be displayed in the UI by the component that failed validation
+    }
   };
 
   handleOnPublish = async (opts = {}) => {
     const { createNew = false, duplicate = false } = opts;
-    await this.controlPaneRef.switchToDefaultLocale();
-    this.controlPaneRef.validate();
-    this.props.onPublish({ createNew, duplicate });
+    try {
+      await this.controlPaneRef.switchToDefaultLocale();
+      await this.controlPaneRef.validate();
+      this.props.onPublish({ createNew, duplicate });
+    } catch (error) {
+      // Validation failed, show error to user
+      console.error('Validation failed:', error);
+      // The error will be displayed in the UI by the component that failed validation
+    }
   };
 
   handleTogglePreview = () => {
@@ -240,6 +252,7 @@ class EditorInterface extends Component {
       deployPreview,
       draftKey,
       editorBackLink,
+      onUpdateEntryPath,
       t,
     } = this.props;
 
@@ -257,6 +270,7 @@ class EditorInterface extends Component {
       fieldsErrors,
       onChange,
       onValidate,
+      onUpdateEntryPath,
     };
 
     const leftPanelLocale = this.state.leftPanelLocale || locales?.[0];

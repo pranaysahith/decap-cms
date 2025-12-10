@@ -37,6 +37,7 @@ describe('NestedCollection', () => {
     label: 'Pages',
     folder: 'src/pages',
     fields: [{ name: 'title', widget: 'string' }],
+    meta: { path: { label: 'Path', widget: 'string', index_file: 'index' } },
     nested: {
       subfolders: true,
     },
@@ -44,9 +45,13 @@ describe('NestedCollection', () => {
 
   it('should render correctly with no entries', () => {
     const entries = fromJS([]);
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { asFragment, getByTestId } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
@@ -63,9 +68,13 @@ describe('NestedCollection', () => {
       { path: 'src/pages/a/a/index.md', data: { title: 'File 3' } },
       { path: 'src/pages/b/a/index.md', data: { title: 'File 4' } },
     ]);
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { asFragment, getByTestId } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
@@ -89,9 +98,13 @@ describe('NestedCollection', () => {
       { path: 'src/pages/a/a/index.md', data: { title: 'File 3' } },
       { path: 'src/pages/b/a/index.md', data: { title: 'File 4' } },
     ]);
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, rerender } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
@@ -112,7 +125,7 @@ describe('NestedCollection', () => {
 
     rerender(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={newEntries} />
+        <NestedCollection collection={collection} entries={newEntries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
@@ -127,9 +140,13 @@ describe('NestedCollection', () => {
       { path: 'src/pages/a/a/a/index.md', data: { title: 'File 3' } },
     ]);
 
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, queryByTestId, rerender } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
@@ -137,7 +154,13 @@ describe('NestedCollection', () => {
 
     rerender(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} filterTerm={'a/a'} />
+        <NestedCollection
+          collection={collection}
+          entries={entries}
+          filterTerm={'a/a'}
+          dispatch={dispatch}
+          t={t}
+        />
       </MemoryRouter>,
     );
 
@@ -152,15 +175,25 @@ describe('NestedCollection', () => {
       { path: 'src/pages/a/a/a/index.md', data: { title: 'File 3' } },
     ]);
 
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, queryByTestId, rerender } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
     rerender(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} filterTerm={'a/a'} />
+        <NestedCollection
+          collection={collection}
+          entries={entries}
+          filterTerm={'a/a'}
+          dispatch={dispatch}
+          t={t}
+        />
       </MemoryRouter>,
     );
 
@@ -174,6 +207,8 @@ describe('NestedCollection', () => {
           collection={collection}
           entries={fromJS(entries.toJS())}
           filterTerm={'a/a'}
+          dispatch={dispatch}
+          t={t}
         />
       </MemoryRouter>,
     );
@@ -190,9 +225,13 @@ describe('NestedCollection', () => {
       { path: 'src/pages/a/a/a/a/index.md', data: { title: 'File 4' } },
     ]);
 
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 
@@ -214,9 +253,13 @@ describe('NestedCollection', () => {
       { path: 'src/pages/a/a/a/a/index.md', data: { title: 'File 4' } },
     ]);
 
+    const dispatch = jest.fn();
+    function t(key, options) {
+      return options?.defaultValue || key;
+    }
     const { getByTestId, queryByTestId } = render(
       <MemoryRouter>
-        <NestedCollection collection={collection} entries={entries} />
+        <NestedCollection collection={collection} entries={entries} dispatch={dispatch} t={t} />
       </MemoryRouter>,
     );
 

@@ -343,6 +343,7 @@ describe('github API', () => {
           { path: 'static/media/image-2.png', sha: 'image-2.png' },
         ],
         { useWorkflow: true },
+        undefined,
       );
     });
   });

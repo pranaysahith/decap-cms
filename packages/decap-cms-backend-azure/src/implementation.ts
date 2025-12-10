@@ -264,6 +264,14 @@ export default class Azure implements Implementation {
     await this.api!.deleteFiles(paths, commitMessage);
   }
 
+  async moveFiles(moves: Array<{ oldPath: string; newPath: string }>, commitMessage: string) {
+    await this.api!.moveFiles(moves, commitMessage);
+  }
+
+  async pathExists(path: string): Promise<boolean> {
+    return this.api!.pathExists(path);
+  }
+
   async loadMediaFile(branch: string, file: UnpublishedEntryMediaFile) {
     const readFile = (
       path: string,

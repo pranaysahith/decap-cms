@@ -22,6 +22,7 @@ import {
   loadLocalBackup,
   retrieveLocalBackup,
   deleteLocalBackup,
+  updateEntryPath,
 } from '../../actions/entries';
 import {
   updateUnpublishedEntryStatus,
@@ -79,6 +80,7 @@ export class Editor extends React.Component {
     loadLocalBackup: PropTypes.func,
     persistLocalBackup: PropTypes.func.isRequired,
     deleteLocalBackup: PropTypes.func,
+    updateEntryPath: PropTypes.func.isRequired,
   };
 
   componentDidMount() {
@@ -408,6 +410,7 @@ export class Editor extends React.Component {
         deployPreview={deployPreview}
         loadDeployPreview={opts => loadDeployPreview(collection, slug, entry, isPublished, opts)}
         editorBackLink={editorBackLink}
+        onUpdateEntryPath={this.props.updateEntryPath}
         t={t}
       />
     );
@@ -492,6 +495,7 @@ const mapDispatchToProps = {
   unpublishPublishedEntry,
   deleteUnpublishedEntry,
   logoutUser,
+  updateEntryPath,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withWorkflow(translate()(Editor)));

@@ -532,4 +532,13 @@ export function selectHasMetaPath(collection: Collection) {
   );
 }
 
+export function selectHasMetaFilename(collection: Collection) {
+  return (
+    collection.has('folder') &&
+    collection.get('type') === FOLDER &&
+    collection.has('meta') &&
+    Boolean(collection.getIn(['meta', 'filename']))
+  );
+}
+
 export default collections;

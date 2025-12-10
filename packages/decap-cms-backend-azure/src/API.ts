@@ -804,4 +804,56 @@ export default class API {
       objectId: pullRequest.lastMergeSourceCommit.commitId,
     });
   }
+
+  /**
+   * Move files atomically in a single commit
+   * @param moves Array of file moves with oldPath and newPath
+   * @param commitMessage Commit message for the move operation
+   */
+  async moveFiles(
+    moves: Array<{ oldPath: string; newPath: string }>,
+    commitMessage: string,
+  ): Promise<void> {
+    // Azure DevOps supports rename operation in commits
+    const changes = moves.map(({ oldPath, newPath }) => ({
+      changeType: AzureCommitChangeType.RENAME,
+      item: {
+        path: trimStart(newPath, '/'),
+      },
+      sourceServerItem: trimStart(oldPath, '/'),
+    }));
+
+    const ref = await this.getRef(this.branch);
+
+    await this.requestJSON({
+      method: 'POST',
+      url: `${this.endpointUrl}/pushes`,
+      params: {
+        api_version: this.apiVersion,
+      },
+      body: JSON.stringify({
+        refUpdates: [
+          {
+            name: this.branchToRef(this.branch),
+            oldObjectId: ref.objectId,
+          },
+        ],
+        commits: [
+          {
+            comment: commitMessage,
+            changes,
+          },
+        ],
+      }),
+    });
+  }
+
+  /**
+   * Check if a file exists at the given path
+   * @param path File path to check
+   * @returns true if file exists, false otherwise
+   */
+  async pathExists(path: string): Promise<boolean> {
+    return this.isFileExists(trimStart(path, '/'), this.branch);
+  }
 }

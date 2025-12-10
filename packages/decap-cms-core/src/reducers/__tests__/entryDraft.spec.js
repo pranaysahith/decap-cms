@@ -11,6 +11,11 @@ const initialState = Map({
   fieldsErrors: Map(),
   hasChanged: false,
   key: '',
+  originalPath: undefined,
+  pathValidation: Map({
+    isValid: true,
+    error: undefined,
+  }),
 });
 
 const entry = {
@@ -37,6 +42,26 @@ describe('entryDraft reducer', () => {
           fieldsErrors: Map(),
           hasChanged: false,
           key: '1',
+          originalPath: entry.path,
+          pathValidation: Map({
+            isValid: true,
+            error: undefined,
+          }),
+        }),
+      );
+    });
+
+    it('should store original path for detecting path changes', () => {
+      const state = reducer(initialState, actions.createDraftFromEntry(fromJS(entry)));
+      expect(state.get('originalPath')).toBe(entry.path);
+    });
+
+    it('should reset path validation state', () => {
+      const state = reducer(initialState, actions.createDraftFromEntry(fromJS(entry)));
+      expect(state.get('pathValidation')).toEqual(
+        Map({
+          isValid: true,
+          error: undefined,
         }),
       );
     });
@@ -55,8 +80,18 @@ describe('entryDraft reducer', () => {
           fieldsErrors: Map(),
           hasChanged: false,
           key: '1',
+          originalPath: undefined,
+          pathValidation: Map({
+            isValid: true,
+            error: undefined,
+          }),
         }),
       );
+    });
+
+    it('should not set original path for new entries', () => {
+      const state = reducer(initialState, actions.emptyDraftCreated(fromJS(entry)));
+      expect(state.get('originalPath')).toBeUndefined();
     });
   });
 
@@ -132,6 +167,11 @@ describe('entryDraft reducer', () => {
         fieldsErrors: {},
         hasChanged: true,
         key: '',
+        originalPath: undefined,
+        pathValidation: {
+          isValid: true,
+          error: undefined,
+        },
       });
     });
   });
@@ -149,6 +189,11 @@ describe('entryDraft reducer', () => {
         fieldsErrors: {},
         hasChanged: true,
         key: '',
+        originalPath: undefined,
+        pathValidation: {
+          isValid: true,
+          error: undefined,
+        },
       });
     });
   });
@@ -170,7 +215,21 @@ describe('entryDraft reducer', () => {
         fieldsErrors: {},
         hasChanged: true,
         key: '1',
+        originalPath: entry.path,
+        pathValidation: {
+          isValid: true,
+          error: undefined,
+        },
       });
+    });
+
+    it('should store original path from backup', () => {
+      const localBackup = Map({ entry: fromJS({ ...entry, mediaFiles: [{ id: '1' }] }) });
+
+      const actualState = reducer(initialState.set('localBackup', localBackup), {
+        type: actions.DRAFT_CREATE_FROM_LOCAL_BACKUP,
+      });
+      expect(actualState.get('originalPath')).toBe(entry.path);
     });
   });
 
@@ -192,6 +251,11 @@ describe('entryDraft reducer', () => {
           entry: { ...entry, mediaFiles: [{ id: '1' }] },
         },
         key: '',
+        originalPath: undefined,
+        pathValidation: {
+          isValid: true,
+          error: undefined,
+        },
       });
     });
   });

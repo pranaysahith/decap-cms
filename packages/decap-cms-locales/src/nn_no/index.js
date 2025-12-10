@@ -222,6 +222,9 @@ const nn_no = {
       entryUpdated: 'Innleggsstatus oppdatert',
       onDeleteUnpublishedChanges: 'Avpubliserte endringar sletta',
       onFailToAuth: '%{details}',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

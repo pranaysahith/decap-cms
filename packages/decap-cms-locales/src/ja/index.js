@@ -269,6 +269,9 @@ const ja = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'ログアウトされています。データをバックアップし、再度ログインしてください。',
       onBackendDown: 'バックエンドのシステムが停止しています。%{details}',
+      noEntriesInFolder: 'このフォルダにエントリが見つかりません',
+      folderRenamed: 'フォルダ名が正常に変更されました',
+      folderRenameNotSupported: 'このバックエンドではフォルダ名の変更はサポートされていません',
     },
   },
   workflow: {

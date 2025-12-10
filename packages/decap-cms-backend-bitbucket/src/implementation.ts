@@ -514,6 +514,14 @@ export default class BitbucketBackend implements Implementation {
     return this.api!.deleteFiles(paths, commitMessage);
   }
 
+  async moveFiles(moves: Array<{ oldPath: string; newPath: string }>, commitMessage: string) {
+    return this.api!.moveFiles(moves, commitMessage);
+  }
+
+  async pathExists(path: string): Promise<boolean> {
+    return this.api!.pathExists(path);
+  }
+
   traverseCursor(cursor: Cursor, action: string) {
     return this.api!.traverseCursor(cursor, action).then(async ({ entries, cursor: newCursor }) => {
       const extension = cursor.meta?.get('extension');

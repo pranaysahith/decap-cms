@@ -69,6 +69,25 @@ const en = {
         label: 'Updated On',
       },
     },
+    folderRename: {
+      title: 'Rename Folder',
+      newName: 'New Folder Name',
+      cancel: 'Cancel',
+      confirm: 'Rename',
+      renameButton: 'Rename folder',
+      urlWarning:
+        'Renaming this folder will change the URLs for all entries within it. This may result in broken links and 404 errors if the old URLs are referenced elsewhere.',
+      affectedEntries: 'This will affect %{count} entry. |||| This will affect %{count} entries.',
+      validating: 'Validating...',
+      renaming: 'Renaming folder...',
+      errors: {
+        nameRequired: 'Folder name is required',
+        invalidCharacters: 'Folder name contains invalid characters: < > : " | ? * / \\',
+        pathTraversal: 'Folder name cannot contain ".."',
+        validationFailed: 'Validation failed',
+        renameFailed: 'Failed to rename folder',
+      },
+    },
   },
   editor: {
     editorControl: {
@@ -152,6 +171,21 @@ const en = {
       deployPreviewPendingButtonLabel: 'Check for Preview',
       deployPreviewButtonLabel: 'View Preview',
       deployButtonLabel: 'View Live',
+    },
+    entryPathEditor: {
+      filename: 'Filename',
+      filenameHelp: 'The filename for this entry (including extension)',
+      filenamePlaceholder: 'e.g., my-post.md',
+      urlWarning:
+        'Changing the filename will change the URL for this entry. This may result in broken links and 404 errors if the old URL is referenced elsewhere. The change will be applied when you publish.',
+      validating: 'Validating...',
+      errors: {
+        filenameRequired: 'Filename is required',
+        invalidCharacters: 'Filename contains invalid characters: < > : " | ? *',
+        pathTraversal: 'Filename cannot contain ".."',
+        noPathSeparators: 'Filename cannot contain path separators (/ or \\)',
+        validationFailed: 'Validation failed',
+      },
     },
     editorWidgets: {
       markdown: {
@@ -283,6 +317,9 @@ const en = {
       onLoggedOut: 'You have been logged out, please back up any data and login again',
       onBackendDown:
         'The backend service is experiencing an outage. See %{details} for more information',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

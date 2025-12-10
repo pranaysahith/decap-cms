@@ -276,6 +276,9 @@ const pt = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Você foi desconectado. Por favor, salve as alterações e entre novamente',
       onBackendDown: 'O serviço de back-end está fora do ar. Veja %{details} para mais informações',
+      noEntriesInFolder: 'Nenhuma entrada encontrada nesta pasta',
+      folderRenamed: 'Pasta renomeada com sucesso',
+      folderRenameNotSupported: 'A renomeação de pasta não é suportada por este backend',
     },
   },
   workflow: {

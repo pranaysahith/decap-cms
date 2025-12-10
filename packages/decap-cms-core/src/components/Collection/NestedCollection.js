@@ -10,9 +10,12 @@ import { Icon, colors, components } from 'decap-cms-ui-default';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import sortBy from 'lodash/sortBy';
+import { translate } from 'react-polyglot';
 
 import { selectEntries } from '../../reducers/entries';
 import { selectEntryCollectionTitle } from '../../reducers/collections';
+import { renameFolder } from '../../actions/entries';
+import FolderRenameControl from './FolderRenameControl';
 
 const { addFileTemplateFields } = stringTemplate;
 
@@ -82,11 +85,18 @@ function getNodeTitle(node, collection) {
 }
 
 function TreeNode(props) {
-  const { collection, treeData, depth = 0, onToggle } = props;
+  const { collection, treeData, depth = 0, onToggle, onRenameFolder, t } = props;
   const collectionName = collection.get('name');
 
   const sortedData = sortBy(treeData, node => getNodeTitle(node, collection));
   const subfolders = collection.get('nested')?.get('subfolders') !== false;
+
+  // Check if rename functionality should be enabled
+  const isNested = !!collection.get('nested');
+  const subfoldersDisabled = collection.get('nested')?.get('subfolders') === false;
+  const hasIndexFile = !!collection.getIn(['meta', 'path', 'index_file']);
+  const showRenameControl = isNested && subfoldersDisabled && !hasIndexFile;
+
   return sortedData.map(node => {
     const leaf =
       depth > 0 &&
@@ -108,6 +118,12 @@ function TreeNode(props) {
         ? node.children.some(c => c.children.some(c => c.isDir))
         : node.children.some(c => c.isDir));
 
+    // Count affected entries for this folder (only for non-root folders)
+    const affectedEntryCount = depth > 0 ? node.children.filter(c => !c.isDir).length : 0;
+
+    // Only show rename control for non-root folders
+    const canRename = showRenameControl && depth > 0 && node.isDir;
+
     return (
       <React.Fragment key={node.path}>
         <TreeNavLink
@@ -122,6 +138,16 @@ function TreeNode(props) {
           <NodeTitleContainer>
             <NodeTitle>{title}</NodeTitle>
             {hasChildren && (node.expanded ? <CaretDown /> : <CaretRight />)}
+            {canRename && (
+              <FolderRenameControl
+                collection={collection}
+                folderPath={node.path}
+                folderName={title}
+                affectedEntryCount={affectedEntryCount}
+                onRename={onRenameFolder}
+                t={t}
+              />
+            )}
           </NodeTitleContainer>
         </TreeNavLink>
         {node.expanded && (
@@ -130,6 +156,8 @@ function TreeNode(props) {
             depth={depth + 1}
             treeData={node.children}
             onToggle={onToggle}
+            onRenameFolder={onRenameFolder}
+            t={t}
           />
         )}
       </React.Fragment>
@@ -142,6 +170,8 @@ TreeNode.propTypes = {
   depth: PropTypes.number,
   treeData: PropTypes.array.isRequired,
   onToggle: PropTypes.func.isRequired,
+  onRenameFolder: PropTypes.func.isRequired,
+  t: PropTypes.func.isRequired,
 };
 
 export function walk(treeData, callback) {
@@ -259,6 +289,8 @@ export class NestedCollection extends React.Component {
     collection: ImmutablePropTypes.map.isRequired,
     entries: ImmutablePropTypes.list.isRequired,
     filterTerm: PropTypes.string,
+    dispatch: PropTypes.func.isRequired,
+    t: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -313,11 +345,24 @@ export class NestedCollection extends React.Component {
     }
   };
 
+  handleRenameFolder = async (oldPath, newPath) => {
+    const { collection, dispatch } = this.props;
+    await dispatch(renameFolder(collection, oldPath, newPath));
+  };
+
   render() {
     const { treeData } = this.state;
-    const { collection } = this.props;
+    const { collection, t } = this.props;
 
-    return <TreeNode collection={collection} treeData={treeData} onToggle={this.onToggle} />;
+    return (
+      <TreeNode
+        collection={collection}
+        treeData={treeData}
+        onToggle={this.onToggle}
+        onRenameFolder={this.handleRenameFolder}
+        t={t}
+      />
+    );
   }
 }
 
@@ -327,4 +372,4 @@ function mapStateToProps(state, ownProps) {
   return { entries };
 }
 
-export default connect(mapStateToProps, null)(NestedCollection);
+export default connect(mapStateToProps)(translate()(NestedCollection));

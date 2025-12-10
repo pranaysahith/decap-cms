@@ -285,6 +285,9 @@ const mk = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Одјавени сте, зачувајте ги податоците и најавете се повторно.',
       onBackendDown: 'Серверот има прекин. Видете %{details} за повеќе информации.',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

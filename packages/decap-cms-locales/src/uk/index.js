@@ -268,6 +268,9 @@ const uk = {
       onFailToAuth: '%{details}',
       onLoggedOut: 'Ви вийшли. Будь ласка, збережіть усі дані та увійдіть знову',
       onBackendDown: 'Трапився збій у роботі серверу. Див. %{details}',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

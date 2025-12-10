@@ -221,6 +221,9 @@ const nb_no = {
       entryUpdated: 'Innleggsstatus oppdatert',
       onDeleteUnpublishedChanges: 'Avpubliserte endringer slettet',
       onFailToAuth: '%{details}',
+      noEntriesInFolder: 'No entries found in this folder',
+      folderRenamed: 'Folder renamed successfully',
+      folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
   },
   workflow: {

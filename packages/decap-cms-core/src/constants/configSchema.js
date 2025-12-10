@@ -299,6 +299,14 @@ function getConfigSchema() {
                   },
                   required: ['label', 'widget'],
                 },
+                filename: {
+                  type: 'object',
+                  properties: {
+                    label: { type: 'string' },
+                    widget: { type: 'string' },
+                  },
+                  required: ['label', 'widget'],
+                },
               },
               additionalProperties: false,
               minProperties: 1,

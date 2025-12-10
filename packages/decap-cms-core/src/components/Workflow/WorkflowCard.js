@@ -56,6 +56,30 @@ const CardBody = styled.p`
   hyphens: auto;
 `;
 
+const PathChangeNotice = styled.div`
+  ${styles.text};
+  color: ${colorsRaw.orange};
+  background-color: ${colorsRaw.orangeLight};
+  padding: 8px 12px;
+  margin: 12px 0 0;
+  border-radius: 4px;
+  font-weight: 500;
+`;
+
+const PathChangeLabel = styled.div`
+  font-weight: 600;
+  margin-bottom: 4px;
+`;
+
+const PathChangeValue = styled.div`
+  font-family: monospace;
+  font-size: 11px;
+  margin: 2px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 const CardButtonContainer = styled.div`
   background-color: ${colors.foreground};
   position: absolute;
@@ -129,8 +153,12 @@ function WorkflowCard({
   canPublish,
   onPublish,
   postAuthor,
+  originalPath,
+  newPath,
   t,
 }) {
+  const hasPathChange = originalPath && newPath && originalPath !== newPath;
+
   return (
     <WorkflowCardContainer>
       <WorkflowLink to={editLink}>
@@ -138,6 +166,15 @@ function WorkflowCard({
         {postAuthor}
         <CardTitle>{title}</CardTitle>
         {(timestamp || authorLastChange) && <CardDate date={timestamp} author={authorLastChange} />}
+        {hasPathChange && (
+          <PathChangeNotice>
+            <PathChangeLabel>
+              {t('workflow.workflowCard.pathChange', { defaultValue: 'Path Change' })}
+            </PathChangeLabel>
+            <PathChangeValue title={originalPath}>From: {originalPath}</PathChangeValue>
+            <PathChangeValue title={newPath}>To: {newPath}</PathChangeValue>
+          </PathChangeNotice>
+        )}
         <CardBody>{body}</CardBody>
       </WorkflowLink>
       <CardButtonContainer>
@@ -171,6 +208,8 @@ WorkflowCard.propTypes = {
   canPublish: PropTypes.bool.isRequired,
   onPublish: PropTypes.func.isRequired,
   postAuthor: PropTypes.string,
+  originalPath: PropTypes.string,
+  newPath: PropTypes.string,
   t: PropTypes.func.isRequired,
 };
 

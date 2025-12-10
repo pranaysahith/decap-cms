@@ -501,6 +501,44 @@ describe('config', () => {
       }).not.toThrow();
     });
 
+    it('should throw if collection meta.filename is an empty object', () => {
+      expect(() => {
+        validateConfig(merge({}, validConfig, { collections: [{ meta: { filename: {} } }] }));
+      }).toThrowError("'collections[0].meta.filename' must have required property 'label'");
+      expect(() => {
+        validateConfig(
+          merge({}, validConfig, { collections: [{ meta: { filename: { label: 'Filename' } } }] }),
+        );
+      }).toThrowError("'collections[0].meta.filename' must have required property 'widget'");
+    });
+
+    it('should allow collection meta to have a filename configuration', () => {
+      expect(() => {
+        validateConfig(
+          merge({}, validConfig, {
+            collections: [{ meta: { filename: { label: 'Filename', widget: 'string' } } }],
+          }),
+        );
+      }).not.toThrow();
+    });
+
+    it('should allow collection meta to have both path and filename configurations', () => {
+      expect(() => {
+        validateConfig(
+          merge({}, validConfig, {
+            collections: [
+              {
+                meta: {
+                  path: { label: 'Path', widget: 'string' },
+                  filename: { label: 'Filename', widget: 'string' },
+                },
+              },
+            ],
+          }),
+        );
+      }).not.toThrow();
+    });
+
     it('should throw if collection field pattern is not an array', () => {
       expect(() => {
         validateConfig(merge({}, validConfig, { collections: [{ fields: [{ pattern: '' }] }] }));

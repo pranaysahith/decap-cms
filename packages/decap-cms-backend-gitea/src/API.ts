@@ -465,4 +465,62 @@ export default class API {
   toBase64(str: string) {
     return Promise.resolve(Base64.encode(str));
   }
+
+  /**
+   * Move files atomically in a single commit
+   * @param moves Array of file moves with oldPath and newPath
+   * @param commitMessage Commit message for the move operation
+   */
+  async moveFiles(
+    moves: Array<{ oldPath: string; newPath: string }>,
+    commitMessage: string,
+  ): Promise<void> {
+    // Gitea doesn't have a native move operation, so we need to:
+    // 1. Read content and SHA from old paths
+    // 2. Create files at new paths with the same content
+    // 3. Delete files at old paths
+    // All in a single commit
+
+    const operations: ChangeFileOperation[] = [];
+
+    for (const { oldPath, newPath } of moves) {
+      const sha = await this.getFileSha(trimStart(oldPath, '/'));
+      const content = await this.readFile(trimStart(oldPath, '/'), sha);
+      const contentBase64 = Base64.encode(content as string);
+
+      // Create file at new path
+      operations.push({
+        operation: FileOperation.CREATE,
+        path: trimStart(newPath, '/'),
+        content: contentBase64,
+      });
+
+      // Delete file at old path
+      operations.push({
+        operation: FileOperation.DELETE,
+        path: trimStart(oldPath, '/'),
+        sha,
+      });
+    }
+
+    await this.changeFiles(operations, { commitMessage });
+  }
+
+  /**
+   * Check if a file exists at the given path
+   * @param path File path to check
+   * @returns true if file exists, false otherwise
+   */
+  async pathExists(path: string): Promise<boolean> {
+    try {
+      await this.getFileSha(trimStart(path, '/'));
+      return true;
+    } catch (error) {
+      if (error instanceof APIError && error.status === 404) {
+        return false;
+      }
+      // Re-throw other errors (network issues, etc.)
+      throw error;
+    }
+  }
 }

@@ -269,6 +269,9 @@ const nl = {
       onLoggedOut: 'Je bent uitgelogd, back-up alstublieft uw data log daarna in',
       onBackendDown:
         'De backend-service ondervindt een storing. Zie% {details} voor meer informatie',
+      noEntriesInFolder: 'Geen items gevonden in deze map',
+      folderRenamed: 'Map succesvol hernoemd',
+      folderRenameNotSupported: 'Map hernoemen wordt niet ondersteund door deze backend',
     },
   },
   workflow: {

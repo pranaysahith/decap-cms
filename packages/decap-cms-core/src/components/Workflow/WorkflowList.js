@@ -249,6 +249,8 @@ class WorkflowList extends React.Component {
                       canPublish={canPublish}
                       onPublish={this.requestPublish.bind(this, collectionName, slug, ownStatus)}
                       postAuthor={postAuthor}
+                      originalPath={entry.get('originalPath')}
+                      newPath={entry.get('newPath')}
                     />
                   </div>,
                 )
