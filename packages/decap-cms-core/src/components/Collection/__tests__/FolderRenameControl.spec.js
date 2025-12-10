@@ -35,23 +35,23 @@ describe('FolderRenameControl', () => {
   });
 
   it('should render rename button', () => {
-    const { getByText } = render(<FolderRenameControl {...defaultProps} />);
-    expect(getByText('Rename')).toBeInTheDocument();
+    const { getByLabelText } = render(<FolderRenameControl {...defaultProps} />);
+    expect(getByLabelText('Rename folder')).toBeInTheDocument();
   });
 
   it('should open modal when rename button is clicked', () => {
-    const { getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByRole, getByText } = render(<FolderRenameControl {...defaultProps} />);
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
 
     expect(getByRole('dialog')).toBeInTheDocument();
     expect(getByText('Rename Folder')).toBeInTheDocument();
   });
 
   it('should display warning banner with affected entry count', () => {
-    const { getByText } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText } = render(<FolderRenameControl {...defaultProps} />);
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
 
     expect(
       getByText(/Renaming this folder will change the URLs for all entries within it/i),
@@ -60,9 +60,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should close modal when cancel button is clicked', () => {
-    const { getByText, queryByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText, queryByRole } = render(<FolderRenameControl {...defaultProps} />);
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
     expect(queryByRole('dialog')).toBeInTheDocument();
 
     fireEvent.click(getByText('Cancel'));
@@ -70,9 +70,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should close modal when escape key is pressed', () => {
-    const { getByText, queryByRole, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, queryByRole, getByRole } = render(<FolderRenameControl {...defaultProps} />);
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
     expect(queryByRole('dialog')).toBeInTheDocument();
 
     const input = getByRole('dialog').querySelector('input');
@@ -83,11 +83,11 @@ describe('FolderRenameControl', () => {
 
   it('should validate folder name on input change', async () => {
     const onValidate = jest.fn().mockResolvedValue({ error: null });
-    const { getByText, getByRole } = render(
+    const { getByLabelText, getByRole } = render(
       <FolderRenameControl {...defaultProps} onValidate={onValidate} />,
     );
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'new-blog' } });
@@ -99,11 +99,11 @@ describe('FolderRenameControl', () => {
 
   it('should display validation error', async () => {
     const onValidate = jest.fn().mockResolvedValue({ error: 'Folder already exists' });
-    const { getByText, getByRole } = render(
+    const { getByLabelText, getByText, getByRole } = render(
       <FolderRenameControl {...defaultProps} onValidate={onValidate} />,
     );
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'existing-folder' } });
@@ -115,26 +115,24 @@ describe('FolderRenameControl', () => {
 
   it('should call onRename when confirm button is clicked', async () => {
     const onRename = jest.fn().mockResolvedValue();
-    const { getAllByText, getByRole } = render(
+    const { getByLabelText, getByText, getByRole } = render(
       <FolderRenameControl {...defaultProps} onRename={onRename} />,
     );
 
-    // Click the trigger button (first "Rename" button)
-    fireEvent.click(getAllByText('Rename')[0]);
+    // Click the trigger button
+    fireEvent.click(getByLabelText('Rename folder'));
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'new-blog' } });
 
     await waitFor(() => {
-      // Get the confirm button (second "Rename" button inside the modal)
-      const buttons = getAllByText('Rename');
-      const confirmButton = buttons[1];
+      // Get the confirm button inside the modal
+      const confirmButton = getByText('Rename');
       expect(confirmButton).not.toBeDisabled();
     });
 
-    // Click the confirm button (second "Rename" button)
-    const buttons = getAllByText('Rename');
-    const confirmButton = buttons[1];
+    // Click the confirm button
+    const confirmButton = getByText('Rename');
     fireEvent.click(confirmButton);
 
     await waitFor(() => {
@@ -144,28 +142,27 @@ describe('FolderRenameControl', () => {
 
   it('should disable confirm button when validation error exists', async () => {
     const onValidate = jest.fn().mockResolvedValue({ error: 'Invalid name' });
-    const { getAllByText, getByRole } = render(
+    const { getByLabelText, getByText, getByRole } = render(
       <FolderRenameControl {...defaultProps} onValidate={onValidate} />,
     );
 
-    // Click the trigger button (first "Rename" button)
-    fireEvent.click(getAllByText('Rename')[0]);
+    // Click the trigger button
+    fireEvent.click(getByLabelText('Rename folder'));
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'invalid' } });
 
     await waitFor(() => {
-      // Get the confirm button (second "Rename" button inside the modal)
-      const buttons = getAllByText('Rename');
-      const confirmButton = buttons[1];
+      // Get the confirm button inside the modal
+      const confirmButton = getByText('Rename');
       expect(confirmButton).toBeDisabled();
     });
   });
 
   it('should validate for empty folder name', async () => {
-    const { getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: '' } });
@@ -176,9 +173,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should validate for invalid characters', async () => {
-    const { getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
 
-    fireEvent.click(getByText('Rename'));
+    fireEvent.click(getByLabelText('Rename folder'));
 
     const input = getByRole('dialog').querySelector('input');
     fireEvent.change(input, { target: { value: 'folder/name' } });
@@ -189,9 +186,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should be disabled when disabled prop is true', () => {
-    const { getByText } = render(<FolderRenameControl {...defaultProps} disabled={true} />);
+    const { getByLabelText } = render(<FolderRenameControl {...defaultProps} disabled={true} />);
 
-    const button = getByText('Rename');
+    const button = getByLabelText('Rename folder');
     expect(button).toBeDisabled();
   });
 });
