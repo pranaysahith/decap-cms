@@ -226,6 +226,7 @@ const nn_no = {
       folderRenamed: 'Folder renamed successfully',
       folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
+  },
   workflow: {
     workflow: {
       loading: 'Lastar innlegg for redaksjonell arbeidsflyt',

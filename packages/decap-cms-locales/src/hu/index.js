@@ -185,6 +185,7 @@ const hu = {
       folderRenamed: 'Folder renamed successfully',
       folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
+  },
   workflow: {
     workflow: {
       loading: 'A szerkesztési munkafolyamat-bejegyzések betöltése',

@@ -1259,13 +1259,19 @@ export function renameFolder(collection: Collection, oldPath: string, newPath: s
               const locale = getLocaleFromPath(structure, extension, i18nPath);
               if (!locale) continue; // Skip if locale cannot be determined
               const normalizedPath = normalizeFilePath(structure, i18nPath, locale);
-              
+
               if (normalizedPath.startsWith(folderPrefix)) {
                 // Calculate the new path maintaining the locale folder structure
                 const relativePath = normalizedPath.slice(folderPrefix.length);
                 const newNormalizedPath = `${collectionFolder}/${sanitizedNormalizedNewPath}/${relativePath}`;
-                const newI18nPath = getFilePath(structure, extension, newNormalizedPath, entry.slug, locale);
-                
+                const newI18nPath = getFilePath(
+                  structure,
+                  extension,
+                  newNormalizedPath,
+                  entry.slug,
+                  locale,
+                );
+
                 i18nMoves.push({
                   oldPath: i18nPath,
                   newPath: newI18nPath,

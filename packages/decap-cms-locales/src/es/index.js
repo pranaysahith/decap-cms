@@ -229,6 +229,7 @@ const es = {
       folderRenamed: 'Carpeta renombrada exitosamente',
       folderRenameNotSupported: 'El renombrado de carpetas no es compatible con este backend',
     },
+  },
   workflow: {
     workflow: {
       loading: 'Cargando Entradas del Flujo Editorial',

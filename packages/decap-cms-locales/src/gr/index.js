@@ -201,6 +201,7 @@ const gr = {
       folderRenamed: 'Folder renamed successfully',
       folderRenameNotSupported: 'Folder rename is not supported by this backend',
     },
+  },
   workflow: {
     workflow: {
       loading: 'Φόρτωση καταχωρήσεων ροής εργασίας σύνταξης',
