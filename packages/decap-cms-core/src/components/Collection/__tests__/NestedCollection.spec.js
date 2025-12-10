@@ -39,7 +39,7 @@ describe('NestedCollection', () => {
     fields: [{ name: 'title', widget: 'string' }],
     meta: { path: { label: 'Path', widget: 'string', index_file: 'index' } },
     nested: {
-      subfolders: false,
+      subfolders: true,
     },
   });
 
