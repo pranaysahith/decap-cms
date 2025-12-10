@@ -37,9 +37,9 @@ import {
   normalizeFilePath,
   getFilePath,
 } from '../lib/i18n';
-import type { I18nInfo } from '../lib/i18n';
 import { addNotification } from './notifications';
 
+import type { I18nInfo } from '../lib/i18n';
 import type { ImplementationMediaFile } from 'decap-cms-lib-util';
 import type { AnyAction } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
