@@ -40,7 +40,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should open modal when rename button is clicked', () => {
-    const { getByLabelText, getByRole, getByText } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByRole, getByText } = render(
+      <FolderRenameControl {...defaultProps} />,
+    );
 
     fireEvent.click(getByLabelText('Rename folder'));
 
@@ -60,7 +62,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should close modal when cancel button is clicked', () => {
-    const { getByLabelText, getByText, queryByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText, queryByRole } = render(
+      <FolderRenameControl {...defaultProps} />,
+    );
 
     fireEvent.click(getByLabelText('Rename folder'));
     expect(queryByRole('dialog')).toBeInTheDocument();
@@ -70,7 +74,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should close modal when escape key is pressed', () => {
-    const { getByLabelText, queryByRole, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, queryByRole, getByRole } = render(
+      <FolderRenameControl {...defaultProps} />,
+    );
 
     fireEvent.click(getByLabelText('Rename folder'));
     expect(queryByRole('dialog')).toBeInTheDocument();
@@ -160,7 +166,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should validate for empty folder name', async () => {
-    const { getByLabelText, getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText, getByRole } = render(
+      <FolderRenameControl {...defaultProps} />,
+    );
 
     fireEvent.click(getByLabelText('Rename folder'));
 
@@ -173,7 +181,9 @@ describe('FolderRenameControl', () => {
   });
 
   it('should validate for invalid characters', async () => {
-    const { getByLabelText, getByText, getByRole } = render(<FolderRenameControl {...defaultProps} />);
+    const { getByLabelText, getByText, getByRole } = render(
+      <FolderRenameControl {...defaultProps} />,
+    );
 
     fireEvent.click(getByLabelText('Rename folder'));
 
