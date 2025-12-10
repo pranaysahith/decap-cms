@@ -537,7 +537,7 @@ export function selectHasMetaFilename(collection: Collection) {
     collection.has('folder') &&
     collection.get('type') === FOLDER &&
     collection.has('meta') &&
-    collection.get('meta')?.has('filename')
+    Boolean(collection.getIn(['meta', 'filename']))
   );
 }
 
