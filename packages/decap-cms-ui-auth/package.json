@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-ui-auth",
+  "name": "@pranaysahith/decap-cms-ui-auth",
   "description": "UI auth library for Decap CMS",
   "version": "3.3.0",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-ui-auth",
@@ -24,10 +24,13 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-lib-auth": "^3.0.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-auth": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
     "react": "^19.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

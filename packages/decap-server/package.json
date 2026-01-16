@@ -1,5 +1,5 @@
 {
-  "name": "decap-server",
+  "name": "@pranaysahith/decap-server",
   "description": "Proxy server to be used with Decap CMS proxy backend",
   "version": "3.4.0",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-server",
@@ -39,7 +39,7 @@
     "@types/morgan": "^1.7.37",
     "@types/node": "^16.0.0",
     "@types/vfile-message": "^2.0.0",
-    "decap-cms-lib-util": "^3.3.1",
+    "@pranaysahith/decap-cms-lib-util": "^3.3.1",
     "jest": "^27.0.0",
     "nodemon": "^2.0.2",
     "ts-jest": "^27.0.0",
@@ -54,5 +54,8 @@
   },
   "bin": {
     "decap-server": "./dist/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

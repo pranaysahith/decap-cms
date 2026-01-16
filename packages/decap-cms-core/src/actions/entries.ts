@@ -1032,7 +1032,7 @@ export function validateMetaField(
     }
     const sanitizedPath = (value as string)
       .split('/')
-      .map(getProcessSegment(state.config.slug))
+      .map(getProcessSegment(state.config.slug, undefined, true))
       .join('/');
 
     if (value !== sanitizedPath) {

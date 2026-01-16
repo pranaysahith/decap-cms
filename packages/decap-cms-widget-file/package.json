@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-file",
+  "name": "@pranaysahith/decap-cms-widget-file",
   "description": "Widget for uploading files in Decap CMS.",
   "version": "3.2.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#file",
@@ -31,11 +31,14 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "immutable": "^3.7.6",
     "prop-types": "^15.7.2",
     "react": "^19.1.0",
     "react-immutable-proptypes": "^2.1.0",
     "uuid": "^8.3.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -22,13 +22,16 @@ const packages = fs.readdirSync(path.resolve(__dirname, '../packages'));
 
 const packageExports = {};
 packages.map(name => {
-  packageExports[name] = {
+  const exportConfig = {
     root: `${toGlobalName(name)}`.split('.'),
     commonjs2: name,
     commonjs: name,
     amd: name,
     umd: name,
   };
+  // Add both unscoped and scoped package names
+  packageExports[name] = exportConfig;
+  packageExports[`@pranaysahith/${name}`] = exportConfig;
 });
 
 module.exports = {

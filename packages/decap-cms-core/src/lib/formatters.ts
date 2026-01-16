@@ -93,13 +93,16 @@ export function commitMessageFormatter(
   return message;
 }
 
-export function prepareSlug(slug: string) {
-  return (
-    slug
-      .trim()
-      // Convert slug to lower-case
-      .toLocaleLowerCase()
+export function prepareSlug(slug: string, preserveCase = false) {
+  let result = slug.trim();
 
+  // Convert slug to lower-case (unless preserveCase is true)
+  if (!preserveCase) {
+    result = result.toLocaleLowerCase();
+  }
+
+  return (
+    result
       // Remove single quotes.
       .replace(/[']/g, '')
 
@@ -108,11 +111,19 @@ export function prepareSlug(slug: string) {
   );
 }
 
-export function getProcessSegment(slugConfig?: CmsSlug, ignoreValues?: string[]) {
+export function getProcessSegment(
+  slugConfig?: CmsSlug,
+  ignoreValues?: string[],
+  preserveCase = false,
+) {
   return (value: string) =>
     ignoreValues && ignoreValues.includes(value)
       ? value
-      : flow([value => String(value), prepareSlug, partialRight(sanitizeSlug, slugConfig)])(value);
+      : flow([
+          (value: string) => String(value),
+          (value: string) => prepareSlug(value, preserveCase),
+          partialRight(sanitizeSlug, slugConfig),
+        ])(value);
 }
 
 export function slugFormatter(

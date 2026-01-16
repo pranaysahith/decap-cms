@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-select",
+  "name": "@pranaysahith/decap-cms-widget-select",
   "description": "Selectable values widget for Decap CMS.",
   "version": "3.3.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#select",
@@ -22,8 +22,8 @@
     "build:esm": "cross-env NODE_ENV=esm babel src --out-dir dist/esm --ignore \"**/__tests__\" --root-mode upward"
   },
   "peerDependencies": {
-    "decap-cms-lib-widgets": "^3.0.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-widgets": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "immutable": "^3.7.6",
     "prop-types": "^15.7.2",
     "react": "^19.1.0",
@@ -31,5 +31,8 @@
   },
   "dependencies": {
     "react-select": "^5.10.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

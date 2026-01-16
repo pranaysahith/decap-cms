@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-list",
+  "name": "@pranaysahith/decap-cms-widget-list",
   "description": "Widget for editing lists in Decap CMS.",
   "version": "3.5.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#list",
@@ -28,13 +28,16 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-lib-widgets": "^3.0.0",
-    "decap-cms-ui-default": "^3.0.0",
-    "decap-cms-widget-object": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-widgets": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-widget-object": "^3.0.0",
     "immutable": "^3.7.6",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
     "react": "^19.1.0",
     "react-immutable-proptypes": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-editor-component-image",
+  "name": "@pranaysahith/decap-cms-editor-component-image",
   "description": "Image component for Decap CMS editor widget",
   "version": "3.2.1",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-editor-component-image",
@@ -23,5 +23,8 @@
   },
   "peerDependencies": {
     "react": "^19.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

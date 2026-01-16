@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-locales",
+  "name": "@pranaysahith/decap-cms-locales",
   "description": "Locales for Decap CMS.",
   "version": "3.5.0",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-locales",
@@ -15,5 +15,8 @@
     "develop": "npm run build:esm -- --watch",
     "build": "cross-env NODE_ENV=production webpack",
     "build:esm": "cross-env NODE_ENV=esm babel src --out-dir dist/esm --ignore \"**/__tests__\" --root-mode upward"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

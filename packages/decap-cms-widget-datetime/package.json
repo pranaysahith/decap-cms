@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-datetime",
+  "name": "@pranaysahith/decap-cms-widget-datetime",
   "description": "Widget for editing dates and times in Decap CMS.",
   "version": "3.4.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#datetime",
@@ -27,5 +27,8 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "react": "^19.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
