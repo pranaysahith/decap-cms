@@ -218,6 +218,7 @@ interface AzureApiConfig {
   initialWorkflowStatus: string;
   cmsLabelPrefix: string;
   apiVersion: string;
+  requestFunction?: (req: ApiRequest) => Promise<Response>;
 }
 
 export default class API {
@@ -228,6 +229,7 @@ export default class API {
   endpointUrl: string;
   initialWorkflowStatus: string;
   cmsLabelPrefix: string;
+  requestFunction?: (req: ApiRequest) => Promise<Response>;
 
   constructor(config: AzureApiConfig, token: string) {
     const { repo } = config;
@@ -239,6 +241,7 @@ export default class API {
     this.initialWorkflowStatus = config.initialWorkflowStatus;
     this.apiVersion = config.apiVersion;
     this.cmsLabelPrefix = config.cmsLabelPrefix;
+    this.requestFunction = config.requestFunction;
   }
 
   withHeaders = (req: ApiRequest) => {

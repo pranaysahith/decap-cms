@@ -2,6 +2,7 @@ import trimStart from 'lodash/trimStart';
 import trim from 'lodash/trim';
 import semaphore from 'semaphore';
 import {
+  AccessTokenError,
   basename,
   getMediaDisplayURL,
   generateContentKey,
@@ -16,6 +17,7 @@ import {
   entriesByFolder,
   contentKeyFromBranch,
   getBlobSHA,
+  unsentRequest,
 } from 'decap-cms-lib-util';
 
 import AuthenticationPage from './AuthenticationPage';
@@ -23,6 +25,7 @@ import API, { API_NAME } from './API';
 
 import type { Semaphore } from 'semaphore';
 import type {
+  ApiRequest,
   Credentials,
   Implementation,
   ImplementationFile,
@@ -62,7 +65,9 @@ function parseAzureRepo(config: Config) {
 export default class Azure implements Implementation {
   lock: AsyncLock;
   api?: API;
+  updateUserCredentials: (args: { token: string; refresh_token: string }) => Promise<null>;
   options: {
+    updateUserCredentials: (args: { token: string; refresh_token: string }) => Promise<null>;
     initialWorkflowStatus: string;
   };
   repo: {
@@ -73,7 +78,14 @@ export default class Azure implements Implementation {
   branch: string;
   apiRoot: string;
   apiVersion: string;
+  authType: string;
+  appId: string;
+  authScope: string;
+  authTokenUrl: string;
+  authTokenEndpointContentType: string;
   token: string | null;
+  refreshToken?: string;
+  refreshedTokenPromise?: Promise<string>;
   squashMerges: boolean;
   cmsLabelPrefix: string;
   mediaFolder: string;
@@ -83,14 +95,38 @@ export default class Azure implements Implementation {
 
   constructor(config: Config, options = {}) {
     this.options = {
+      updateUserCredentials: async () => null,
       initialWorkflowStatus: '',
       ...options,
     };
+    this.updateUserCredentials = this.options.updateUserCredentials;
 
     this.repo = parseAzureRepo(config);
+    const backendConfig = config.backend as Config['backend'] & {
+      tenant_id?: string;
+      auth_scope?: string;
+      auth_token_endpoint?: string;
+      auth_token_endpoint_content_type?: string;
+      base_url?: string;
+    };
+    const tenantId = backendConfig.tenant_id || '';
+    const baseUrl =
+      backendConfig.base_url || `https://login.microsoftonline.com/${tenantId}`;
+    const authTokenEndpoint = backendConfig.auth_token_endpoint || 'oauth2/v2.0/token';
+    const trimmedBaseUrl = baseUrl.replace(/\/+$/, '');
+    const trimmedAuthTokenEndpoint = authTokenEndpoint.replace(/^\/+/, '');
+
     this.branch = config.backend.branch || 'master';
     this.apiRoot = config.backend.api_root || 'https://dev.azure.com';
     this.apiVersion = config.backend.api_version || '6.1-preview';
+    this.authType = config.backend.auth_type || 'implicit';
+    this.appId = config.backend.app_id || '';
+    this.authScope =
+      backendConfig.auth_scope || '499b84ac-1321-427f-aa17-267ca6975798/user_impersonation';
+    this.authTokenUrl = `${trimmedBaseUrl}/${trimmedAuthTokenEndpoint}`;
+    this.authTokenEndpointContentType =
+      backendConfig.auth_token_endpoint_content_type ||
+      'application/x-www-form-urlencoded; charset=utf-8';
     this.token = '';
     this.squashMerges = config.backend.squash_merges || false;
     this.cmsLabelPrefix = config.backend.cms_label_prefix || '';
@@ -125,6 +161,7 @@ export default class Azure implements Implementation {
 
   async authenticate(state: Credentials) {
     this.token = state.token as string;
+    this.refreshToken = state.refresh_token;
     this.api = new API(
       {
         apiRoot: this.apiRoot,
@@ -134,12 +171,13 @@ export default class Azure implements Implementation {
         squashMerges: this.squashMerges,
         cmsLabelPrefix: this.cmsLabelPrefix,
         initialWorkflowStatus: this.options.initialWorkflowStatus,
+        requestFunction: this.apiRequestFunction,
       },
       this.token,
     );
 
     const user = await this.api.user();
-    return { token: state.token as string, ...user };
+    return { token: state.token as string, refresh_token: state.refresh_token, ...user };
   }
 
   /**
@@ -153,8 +191,82 @@ export default class Azure implements Implementation {
   }
 
   getToken() {
+    if (this.refreshedTokenPromise) {
+      return this.refreshedTokenPromise;
+    }
+
     return Promise.resolve(this.token);
   }
+
+  getRefreshedAccessToken() {
+    if (this.authType === 'implicit') {
+      throw new AccessTokenError(`Can't refresh access token when using implicit auth`);
+    }
+    if (this.refreshedTokenPromise) {
+      return this.refreshedTokenPromise;
+    }
+
+    if (!this.refreshToken) {
+      throw new AccessTokenError(`Can't refresh access token without refresh token`);
+    }
+
+    const bodyObject: Record<string, string> = {
+      client_id: this.appId,
+      grant_type: 'refresh_token',
+      refresh_token: this.refreshToken,
+    };
+    if (this.authScope) {
+      bodyObject.scope = this.authScope;
+    }
+
+    this.refreshedTokenPromise = fetch(this.authTokenUrl, {
+      method: 'POST',
+      body: this.authTokenEndpointContentType.startsWith('application/x-www-form-urlencoded')
+        ? new URLSearchParams(Object.entries(bodyObject)).toString()
+        : JSON.stringify(bodyObject),
+      headers: {
+        'Content-Type': this.authTokenEndpointContentType,
+      },
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok || !data.access_token) {
+          const errorMessage = data.error_description || data.error || 'Failed to refresh token';
+          throw new Error(errorMessage);
+        }
+        return data;
+      })
+      .then(({ access_token: token, refresh_token }) => {
+        this.token = token;
+        this.refreshToken = refresh_token || this.refreshToken;
+        this.updateUserCredentials({ token, refresh_token: this.refreshToken as string });
+        return token;
+      })
+      .finally(() => {
+        this.refreshedTokenPromise = undefined;
+      });
+
+    return this.refreshedTokenPromise;
+  }
+
+  apiRequestFunction = async (req: ApiRequest) => {
+    const token = (
+      this.refreshedTokenPromise ? await this.refreshedTokenPromise : this.token
+    ) as string;
+    const authorizedRequest = unsentRequest.withHeaders({ Authorization: `Bearer ${token}` }, req);
+    const response = await unsentRequest.performRequest(authorizedRequest);
+    if (response.status === 401 && this.refreshToken) {
+      const newToken = await this.getRefreshedAccessToken();
+      const reqWithNewToken = unsentRequest.withHeaders(
+        {
+          Authorization: `Bearer ${newToken}`,
+        },
+        req,
+      );
+      return unsentRequest.performRequest(reqWithNewToken);
+    }
+    return response;
+  };
 
   async entriesByFolder(folder: string, extension: string, depth: number) {
     const listFiles = async () => {

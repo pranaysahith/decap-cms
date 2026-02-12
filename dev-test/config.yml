@@ -1,7 +1,8 @@
 backend:
   name: azure
+  auth_type: pkce
   repo: glasswall/1GW/public-documentation
-  branch: pb/fix_decap_cms
+  branch: pb/button-example
   tenant_id: 7049e6a3-141d-463a-836b-1ba40d3ff653
   app_id: f637ae8c-d020-4055-8f0d-2ed4bd86b169
 
