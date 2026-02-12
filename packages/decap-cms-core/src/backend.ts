@@ -241,7 +241,10 @@ function sortByScore(a: fuzzy.FilterResult<EntryValue>, b: fuzzy.FilterResult<En
 
 export function slugFromCustomPath(collection: Collection, customPath: string) {
   const folderPath = collection.get('folder', '') as string;
-  const entryPath = customPath.toLowerCase().replace(folderPath.toLowerCase(), '');
+  // Use case-insensitive matching to remove folder path prefix while preserving original casing
+  const escapedFolderPath = folderPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp('^' + escapedFolderPath, 'i');
+  const entryPath = customPath.replace(regex, '');
   const slug = join(dirname(trim(entryPath, '/')), basename(entryPath, extname(customPath)));
   return slug;
 }
