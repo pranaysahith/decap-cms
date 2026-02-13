@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-ui-default",
+  "name": "@pranaysahith/decap-cms-ui-default",
   "description": "Default UI components for Decap CMS.",
   "version": "3.5.0",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-ui-default",
@@ -26,5 +26,8 @@
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
     "react": "^19.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

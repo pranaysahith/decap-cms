@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-object",
+  "name": "@pranaysahith/decap-cms-widget-object",
   "description": "Widget for displaying an object of fields for Decap CMS.",
   "version": "3.4.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#object",
@@ -24,11 +24,14 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "immutable": "^3.7.6",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
     "react": "^19.1.0",
     "react-immutable-proptypes": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-lib-util",
+  "name": "@pranaysahith/decap-cms-lib-util",
   "description": "Shared utilities for Decap CMS.",
   "version": "3.3.1",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-lib-util",
@@ -27,5 +27,8 @@
   "peerDependencies": {
     "immutable": "^3.7.6",
     "lodash": "^4.17.11"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

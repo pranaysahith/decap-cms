@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-backend-git-gateway",
+  "name": "@pranaysahith/decap-cms-backend-git-gateway",
   "description": "Git Gateway backend for Decap CMS",
   "version": "3.4.1",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-backend-git-gateway",
@@ -28,15 +28,18 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-backend-bitbucket": "^3.0.0",
-    "decap-cms-backend-github": "^3.0.0",
-    "decap-cms-backend-gitlab": "^3.0.0",
-    "decap-cms-lib-auth": "^3.0.0",
-    "decap-cms-lib-util": "^3.0.0",
-    "decap-cms-ui-auth": "^3.0.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-backend-bitbucket": "^3.0.0",
+    "@pranaysahith/decap-cms-backend-github": "^3.0.0",
+    "@pranaysahith/decap-cms-backend-gitlab": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-auth": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-util": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-auth": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
     "react": "^19.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-text",
+  "name": "@pranaysahith/decap-cms-widget-text",
   "description": "Widget for editing multiline plain string values in Decap CMS.",
   "version": "3.2.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#text",
@@ -26,8 +26,11 @@
     "react-textarea-autosize": "^8.0.0"
   },
   "peerDependencies": {
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "prop-types": "^15.7.2",
     "react": "^19.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

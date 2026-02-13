@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-lib-auth",
+  "name": "@pranaysahith/decap-cms-lib-auth",
   "description": "Shared authentication functionality for Decap CMS.",
   "version": "3.0.6",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-lib-auth",
@@ -24,5 +24,8 @@
     "immutable": "^3.7.6",
     "lodash": "^4.17.11",
     "uuid": "^8.3.2"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

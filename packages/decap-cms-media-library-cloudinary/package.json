@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-media-library-cloudinary",
+  "name": "@pranaysahith/decap-cms-media-library-cloudinary",
   "description": "Cloudinary integration for Decap CMS",
   "version": "3.1.0",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-media-library-cloudinary",
@@ -24,6 +24,9 @@
     "build:esm": "cross-env NODE_ENV=esm babel src --out-dir dist/esm --ignore \"**/__tests__\" --root-mode upward"
   },
   "peerDependencies": {
-    "decap-cms-lib-util": "^3.0.0"
+    "@pranaysahith/decap-cms-lib-util": "^3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

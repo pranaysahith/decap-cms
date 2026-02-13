@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-map",
+  "name": "@pranaysahith/decap-cms-widget-map",
   "description": "Widget for editing spatial data in Decap CMS.",
   "version": "3.2.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#map",
@@ -22,7 +22,7 @@
   },
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
     "react": "^19.1.0",
@@ -30,5 +30,8 @@
   },
   "dependencies": {
     "ol": "^6.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

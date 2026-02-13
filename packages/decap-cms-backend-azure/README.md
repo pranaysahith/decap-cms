@@ -11,3 +11,8 @@ An abstraction layer between the CMS and [Azure DevOps](https://docs.microsoft.c
 `AuthenticationPage` - facilitates implicit authentication flow. Uses [lib-auth](https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-lib-auth/README.md).
 
 Look at tests or types for more info.
+
+## Auth modes
+
+- `auth_type: implicit` (default): uses Azure implicit OAuth and access tokens only.
+- `auth_type: pkce`: uses OAuth2 PKCE and supports `refresh_token`-based access token refresh.

@@ -1,5 +1,5 @@
 {
-  "name": "decap-cms-widget-markdown",
+  "name": "@pranaysahith/decap-cms-widget-markdown",
   "description": "Widget for editing markdown in Decap CMS.",
   "version": "3.6.0",
   "homepage": "https://www.decapcms.org/docs/widgets/#markdown",
@@ -51,7 +51,7 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "immutable": "^3.7.6",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
@@ -62,5 +62,8 @@
   "devDependencies": {
     "commonmark": "^0.30.0",
     "commonmark-spec": "^0.30.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

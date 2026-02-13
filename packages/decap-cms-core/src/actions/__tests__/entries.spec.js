@@ -571,5 +571,26 @@ describe('entries', () => {
         error: false,
       });
     });
+
+    it('should not return error on path with capital letters', () => {
+      selectCustomPath.mockReturnValue('4-Meteor/6-Cloud-Folders');
+      selectEntryByPath.mockReturnValue(undefined);
+      expect(
+        validateMetaField(
+          {
+            ...state,
+            entryDraft: fromJS({
+              entry: {},
+            }),
+          },
+          collection,
+          fromJS({ meta: true, name: 'path' }),
+          '4-Meteor/6-Cloud-Folders',
+          t,
+        ),
+      ).toEqual({
+        error: false,
+      });
+    });
   });
 });

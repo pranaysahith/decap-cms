@@ -15,6 +15,10 @@ const devServerPort = parseInt(process.env.DECAP_CMS_DEV_SERVER_PORT || `${8080}
 
 const baseConfig = {
   ...baseWebpackConfig,
+  output: {
+    ...baseWebpackConfig.output,
+    filename: 'decap-cms.js',
+  },
   plugins: [
     ...Object.entries(plugins)
       .filter(([key]) => key !== 'friendlyErrors')

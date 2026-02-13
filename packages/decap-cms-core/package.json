@@ -1,7 +1,7 @@
 {
-  "name": "decap-cms-core",
+  "name": "@pranaysahith/decap-cms-core",
   "description": "Decap CMS core application, see decap-cms package for the main distribution.",
-  "version": "3.9.0",
+  "version": "3.9.1",
   "repository": "https://github.com/decaporg/decap-cms/tree/main/packages/decap-cms-core",
   "bugs": "https://github.com/decaporg/decap-cms/issues",
   "module": "dist/esm/index.js",
@@ -78,11 +78,11 @@
   "peerDependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "decap-cms-editor-component-image": "^3.0.0",
-    "decap-cms-lib-auth": "^3.0.0",
-    "decap-cms-lib-util": "^3.0.0",
-    "decap-cms-lib-widgets": "^3.0.0",
-    "decap-cms-ui-default": "^3.0.0",
+    "@pranaysahith/decap-cms-editor-component-image": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-auth": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-util": "^3.0.0",
+    "@pranaysahith/decap-cms-lib-widgets": "^3.0.0",
+    "@pranaysahith/decap-cms-ui-default": "^3.0.0",
     "immutable": "^3.7.6",
     "lodash": "^4.17.11",
     "prop-types": "^15.7.2",
@@ -99,5 +99,8 @@
   },
   "browser": {
     "path": "path-browserify"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

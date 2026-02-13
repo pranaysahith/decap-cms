@@ -22,7 +22,7 @@ import {
   readFileMetadata,
   branchFromContentKey,
 } from 'decap-cms-lib-util';
-import { dirname, basename } from 'path';
+import { basename, dirname } from 'path';
 
 import type { ApiRequest, AssetProxy, PersistOptions, DataFile } from 'decap-cms-lib-util';
 import type { Map } from 'immutable';
@@ -218,6 +218,7 @@ interface AzureApiConfig {
   initialWorkflowStatus: string;
   cmsLabelPrefix: string;
   apiVersion: string;
+  requestFunction?: (req: ApiRequest) => Promise<Response>;
 }
 
 export default class API {
@@ -228,6 +229,7 @@ export default class API {
   endpointUrl: string;
   initialWorkflowStatus: string;
   cmsLabelPrefix: string;
+  requestFunction?: (req: ApiRequest) => Promise<Response>;
 
   constructor(config: AzureApiConfig, token: string) {
     const { repo } = config;
@@ -239,6 +241,7 @@ export default class API {
     this.initialWorkflowStatus = config.initialWorkflowStatus;
     this.apiVersion = config.apiVersion;
     this.cmsLabelPrefix = config.cmsLabelPrefix;
+    this.requestFunction = config.requestFunction;
   }
 
   withHeaders = (req: ApiRequest) => {
@@ -503,7 +506,11 @@ export default class API {
     }));
   }
 
-  async getCommitItems(files: { path: string; newPath?: string }[], branch: string) {
+  async getCommitItems(
+    files: { path: string; newPath?: string }[],
+    branch: string,
+    subfolders = true,
+  ) {
     const items = await Promise.all(
       files.map(async file => {
         const [base64Content, fileExists] = await Promise.all([
@@ -526,20 +533,24 @@ export default class API {
       }),
     );
 
-    // move children
-    for (const item of items.filter(i => i.oldPath && i.action === AzureCommitChangeType.RENAME)) {
-      const sourceDir = dirname(item.oldPath as string);
-      const destDir = dirname(item.path);
-      const children = await this.listFiles(sourceDir, true, branch);
-      children
-        .filter(file => file.path !== item.oldPath)
-        .forEach(file => {
-          items.push({
-            action: AzureCommitChangeType.RENAME,
-            path: file.path.replace(sourceDir, destDir),
-            oldPath: file.path,
+    // move children when subfolders is true (legacy/default behavior)
+    if (subfolders) {
+      for (const item of items.filter(
+        i => i.oldPath && i.action === AzureCommitChangeType.RENAME,
+      )) {
+        const sourceDir = dirname(item.oldPath as string);
+        const destDir = dirname(item.path);
+        const children = await this.listFiles(sourceDir, true, branch);
+        children
+          .filter(file => file.path !== item.oldPath)
+          .forEach(file => {
+            items.push({
+              action: AzureCommitChangeType.RENAME,
+              path: file.path.replace(sourceDir, destDir),
+              oldPath: file.path,
+            });
           });
-        });
+      }
     }
 
     return items;
@@ -547,11 +558,12 @@ export default class API {
 
   async persistFiles(dataFiles: DataFile[], mediaFiles: AssetProxy[], options: PersistOptions) {
     const files = [...dataFiles, ...mediaFiles];
+    const subfolders = options.hasSubfolders !== false; // default to true
     if (options.useWorkflow) {
       const slug = dataFiles[0].slug;
       return this.editorialWorkflowGit(files, slug, options);
     } else {
-      const items = await this.getCommitItems(files, this.branch);
+      const items = await this.getCommitItems(files, this.branch, subfolders);
 
       return this.uploadAndCommit(items, options.commitMessage, this.branch, true);
     }
@@ -677,9 +689,10 @@ export default class API {
     const contentKey = generateContentKey(options.collectionName as string, slug);
     const branch = branchFromContentKey(contentKey);
     const unpublished = options.unpublished || false;
+    const subfolders = options.hasSubfolders !== false; // default to true
 
     if (!unpublished) {
-      const items = await this.getCommitItems(files, this.branch);
+      const items = await this.getCommitItems(files, this.branch, subfolders);
 
       await this.uploadAndCommit(items, options.commitMessage, branch, true);
       await this.createPullRequest(
@@ -688,7 +701,7 @@ export default class API {
         options.status || this.initialWorkflowStatus,
       );
     } else {
-      const items = await this.getCommitItems(files, branch);
+      const items = await this.getCommitItems(files, branch, subfolders);
       await this.uploadAndCommit(items, options.commitMessage, branch, false);
     }
   }
