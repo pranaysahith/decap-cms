@@ -254,8 +254,17 @@ export default class Azure implements Implementation {
       this.refreshedTokenPromise ? await this.refreshedTokenPromise : this.token
     ) as string;
     const authorizedRequest = unsentRequest.withHeaders({ Authorization: `Bearer ${token}` }, req);
-    const response = await unsentRequest.performRequest(authorizedRequest);
-    if (response.status === 401 && this.refreshToken) {
+    // Set redirect: 'manual' to intercept 302 redirects (token expiry) instead of following them
+    const requestWithManualRedirect = authorizedRequest.set('redirect', 'manual');
+    const response = await unsentRequest.performRequest(requestWithManualRedirect);
+
+    // Check for auth failures: 401 Unauthorized, 302 redirect, or opaqueredirect (when redirect: manual is set)
+    const isAuthFailure =
+      response.status === 401 ||
+      response.status === 302 ||
+      response.type === 'opaqueredirect';
+
+    if (isAuthFailure && this.refreshToken) {
       const newToken = await this.getRefreshedAccessToken();
       const reqWithNewToken = unsentRequest.withHeaders(
         {
@@ -263,6 +272,7 @@ export default class Azure implements Implementation {
         },
         req,
       );
+      // Don't use manual redirect for retry - let it follow redirects normally
       return unsentRequest.performRequest(reqWithNewToken);
     }
     return response;
